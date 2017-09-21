@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="adam_core" default="jar">
+
+	<dirname property="core.basedir" file="${ant.file.adam_core}"/>
+
+<!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTS %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
+	<property file="${core.basedir}/build.properties"/>
+	<import file="${mainfolder}/build_macros.xml" optional="false"/>
+	<include file="${mainfolder}/build_targets.xml" as="core.fu" optional="false"/>
+
+<!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% PATHs %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
+	
+	<union id="core.jar.res">    			
+<!--			<zipfileset includes="**/*.class" src="${mainfolder}/lib/apt/apt.jar"/>
+			<zipfileset includes="**/*.stg" src="${mainfolder}/lib/apt/apt.jar"/>-->
+<!--			<zipfileset includes="**/*.class" src="${logics.basedir}/lib/apt/apt-module.jar"/>
+			<zipfileset includes="**/*.class" src="${logics.basedir}/lib/apt/apt-lib.jar"/>
+			<zipfileset includes="**/*.class" src="${logics.basedir}/lib/apt/apt-io.jar"/>
+			<zipfileset includes="**/*.stg" src="${logics.basedir}/lib/apt/apt-io.jar"/>-->
+	</union>
+
+<!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% PROPERTIES %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
+	<target name="loadProperties">
+		<property file="${subproject.basedir}/build.properties"/>		
+	</target>
+
+<!--  %%%%%%%%%%%%%%%%%%%%%%%%%%%%% DELEGATES %%%%%%%%%%%%%%%%%%%%%%%%%%% -->	
+	<target name="test" depends="loadProperties" description="Runs all tests">
+		<antcall target="core.fu.test"/>
+			<!--<ant antfile="${logics.basedir}/build_logics.xml" target="test"></ant>	-->	
+	</target>
+	<target name="test-method" depends="loadProperties" description="Runs the tests of a specific method">
+		<antcall target="core.fu.test-method"/>
+	</target>
+	<target name="test-class" depends="loadProperties" description="Runs the tests of a specific class">
+		<antcall target="core.fu.test-class"/>
+	</target>
+	<target name="jar" depends="loadProperties" description="Builds a jar with all its dependencies">
+		<antcall target="core.fu.jar"/>
+	</target>
+	<target name="jar-standalone" depends="loadProperties" description="Builds a jar with all its dependencies">
+		<antcall target="core.fu.jar-standalone"/>
+	</target>
+
+	<target name="clean" depends="loadProperties" description="Cleans all temporary files.">
+		<antcall target="core.fu.clean"/>
+	</target>
+	<target name="clean-all" depends="loadProperties" description="Cleans all temporary files including the reports">
+		<antcall target="core.fu.clean-all"/>
+	</target>
+</project>

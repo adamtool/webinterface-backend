@@ -63,7 +63,7 @@ public class Adam {
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% EXPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public static String getAPT(PetriNet net) throws RenderException {
-        return AdamBehavior.getAPT(net);
+        return AdamBehavior.getAPT(net, true);
     }
 
     public static String getDot(PetriNet net, boolean withLabels) {

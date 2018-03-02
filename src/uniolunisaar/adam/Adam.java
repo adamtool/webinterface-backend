@@ -1,6 +1,7 @@
 package uniolunisaar.adam;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.renderer.RenderException;
@@ -16,6 +17,7 @@ import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.logic.AdamBehavior;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverOptions;
+import uniolunisaar.adam.tools.Logger;
 
 /**
  *
@@ -75,7 +77,7 @@ public class Adam {
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%% SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-// %%%%%%%%%%%%%%%%%%%%%%%%%%% BDDSOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%% BDDSOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public static boolean existsWinningStrategyBDD(String path) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, ParameterMissingException {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.existsWinningStrategy(path);
     }
@@ -195,5 +197,32 @@ public class Adam {
     public static Pair<BDDGraph, PetriNet> getStrategiesBDD(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getStrategies(game, win, so);
     }
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%% QBFSOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%% LOGGER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     * Sets the streams of the logger to the given streams as long they are not
+     * null.
+     *
+     * @param shortMessageStream - for short messages, standard is std.out, can
+     * made silent by Logger.getInstance().setVerbose(false)
+     * @param verboseMessageStream - for verbose messages, standard is std.out,
+     * can be activated by Logger.getInstance().setVerbose(true)
+     * @param warningStream - for warning, standard std.out
+     * @param errorStream - for error, standard std.err
+     */
+    public static void setOutputStreams(PrintStream shortMessageStream, PrintStream verboseMessageStream, PrintStream warningStream, PrintStream errorStream) {
+        if (shortMessageStream != null) {
+            Logger.getInstance().setErrorStream(shortMessageStream);
+        }
+        if (verboseMessageStream != null) {
+            Logger.getInstance().setErrorStream(verboseMessageStream);
+        }
+        if (warningStream != null) {
+            Logger.getInstance().setErrorStream(warningStream);
+        }
+        if (errorStream != null) {
+            Logger.getInstance().setErrorStream(errorStream);
+        }
+    }
 }

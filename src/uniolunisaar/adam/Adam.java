@@ -2,7 +2,6 @@ package uniolunisaar.adam;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.renderer.RenderException;
 import uniol.apt.util.Pair;
@@ -94,7 +93,7 @@ public class Adam {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.existsWinningStrategy(net, so);
     }
 
-    public static boolean existsWinningStrategyBDD(PetriGame net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
+    public static boolean existsWinningStrategyBDD(PetriGame net, WinningCondition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.existsWinningStrategy(net, win, so);
     }
 
@@ -118,7 +117,7 @@ public class Adam {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getStrategy(net, so);
     }
 
-    public static PetriGame getStrategyBDD(PetriGame net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static PetriGame getStrategyBDD(PetriGame net, WinningCondition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getStrategy(net, win, so);
     }
 
@@ -142,7 +141,7 @@ public class Adam {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getGraphStrategy(net, so);
     }
 
-    public static BDDGraph getGraphStrategyBDD(PetriGame net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static BDDGraph getGraphStrategyBDD(PetriGame net, WinningCondition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getGraphStrategy(net, win, so);
     }
 
@@ -166,8 +165,8 @@ public class Adam {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getGraphGame(net, so);
     }
 
-    public static BDDGraph getGraphGraphBDD(PetriGame net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
-        return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getGraphGraph(net, win, so);
+    public static BDDGraph getGraphGameBDD(PetriGame net, WinningCondition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+        return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getGraphGame(net, win, so);
     }
 //
 //    public static BDDGraph getGraphGameBDD(PetriGame game, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
@@ -190,7 +189,7 @@ public class Adam {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getStrategies(net, so);
     }
 
-    public static Pair<BDDGraph, PetriGame> getStrategiesBDD(PetriGame net, WinningCondition win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
+    public static Pair<BDDGraph, PetriGame> getStrategiesBDD(PetriGame net, WinningCondition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableWinningConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getStrategies(net, win, so);
     }
 

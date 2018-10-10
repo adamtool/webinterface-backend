@@ -42,7 +42,7 @@
 		<antcall target="core.fu.jar-standalone"/>
 	</target>
 	<target name="javadoc" depends="loadProperties" description="Creates the JavaDoc of this package.">
-		<antcall target="bounded.fu.javadoc"/>
+		<antcall target="core.fu.javadoc"/>
 	</target>
 
 	<target name="clean" depends="loadProperties" description="Cleans all temporary files.">

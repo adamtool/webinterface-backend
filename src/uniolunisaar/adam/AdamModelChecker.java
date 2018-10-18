@@ -10,7 +10,7 @@ import uniolunisaar.adam.logic.flowltl.RunFormula;
 import uniolunisaar.adam.logic.flowltlparser.FlowLTLParser;
 import uniolunisaar.adam.logic.util.FormulaCreator;
 import uniolunisaar.adam.modelchecker.circuits.CounterExample;
-import uniolunisaar.adam.modelchecker.circuits.ModelChecker;
+import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerParallel;
 import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerSequential;
 import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerParallel;
@@ -113,9 +113,9 @@ public class AdamModelChecker {
      */
     public static CounterExample checkFlowLTLFormula(PetriGame net, RunFormula f, boolean parallel, String path) throws InterruptedException, IOException {
         if (parallel) {
-            return ModelChecker.checkWithParallelApproach(net, f, path, true);
+            return ModelCheckerFlowLTL.checkWithParallelApproach(net, f, path, true);
         } else {
-            return ModelChecker.checkWithSequentialApproach(net, f, path, true);
+            return ModelCheckerFlowLTL.checkWithSequentialApproach(net, f, path, true);
         }
     }
 }

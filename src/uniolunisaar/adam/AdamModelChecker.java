@@ -113,9 +113,9 @@ public class AdamModelChecker {
      */
     public static CounterExample checkFlowLTLFormula(PetriGame net, RunFormula f, boolean parallel, String path) throws InterruptedException, IOException {
         if (parallel) {
-            return ModelChecker.checkWithParallelApproach(net, f, path);
+            return ModelChecker.checkWithParallelApproach(net, f, path, true);
         } else {
-            return ModelChecker.checkWithSequentialApproach(net, f, path);
+            return ModelChecker.checkWithSequentialApproach(net, f, path, true);
         }
     }
 }

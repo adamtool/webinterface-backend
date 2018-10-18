@@ -11,8 +11,10 @@ import uniolunisaar.adam.logic.flowltlparser.FlowLTLParser;
 import uniolunisaar.adam.logic.util.FormulaCreator;
 import uniolunisaar.adam.modelchecker.circuits.CounterExample;
 import uniolunisaar.adam.modelchecker.circuits.ModelChecker;
-import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformer;
-import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformer;
+import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerParallel;
+import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerSequential;
+import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerParallel;
+import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerSequential;
 
 /**
  *
@@ -63,9 +65,9 @@ public class AdamModelChecker {
      */
     public static PetriNet getModelCheckingNet(PetriGame game, RunFormula f, boolean parallel) {
         if (parallel) {
-            return PetriNetTransformer.createNet4ModelCheckingParallel(game);
+            return PetriNetTransformerParallel.createNet4ModelCheckingParallel(game);
         } else {
-            return PetriNetTransformer.createNet4ModelCheckingSequential(game, f);
+            return PetriNetTransformerSequential.createNet4ModelCheckingSequential(game, f);
         }
     }
 
@@ -87,9 +89,9 @@ public class AdamModelChecker {
      */
     public static IRunFormula getModelCheckingFormula(PetriGame originalNet, PetriNet modelCheckingNet, RunFormula f, boolean parallel) {
         if (parallel) {
-            return FlowLTLTransformer.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
+            return FlowLTLTransformerParallel.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
-            return FlowLTLTransformer.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f);
+            return FlowLTLTransformerSequential.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f);
         }
     }
 

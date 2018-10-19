@@ -13,8 +13,8 @@ import uniolunisaar.adam.modelchecker.circuits.CounterExample;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerParallel;
 import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerSequential;
-import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerParallel;
-import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerSequential;
+import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerFlowLTLParallel;
+import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerFlowLTLSequential;
 
 /**
  *
@@ -65,9 +65,9 @@ public class AdamModelChecker {
      */
     public static PetriNet getModelCheckingNet(PetriGame game, RunFormula f, boolean parallel) {
         if (parallel) {
-            return PetriNetTransformerParallel.createNet4ModelCheckingParallel(game);
+            return PetriNetTransformerFlowLTLParallel.createNet4ModelCheckingParallelOneFlowFormula(game);
         } else {
-            return PetriNetTransformerSequential.createNet4ModelCheckingSequential(game, f);
+            return PetriNetTransformerFlowLTLSequential.createNet4ModelCheckingSequential(game, f);
         }
     }
 

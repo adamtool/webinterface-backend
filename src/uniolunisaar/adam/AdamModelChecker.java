@@ -93,7 +93,7 @@ public class AdamModelChecker {
         if (parallel) {
             return FlowLTLTransformerParallel.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
-            return FlowLTLTransformerSequential.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f);
+            return FlowLTLTransformerSequential.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, true);
         }
     }
 

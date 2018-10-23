@@ -5,12 +5,14 @@ import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.logic.flowltl.ILTLFormula;
 import uniolunisaar.adam.logic.flowltl.IRunFormula;
 import uniolunisaar.adam.logic.flowltl.RunFormula;
 import uniolunisaar.adam.logic.flowltlparser.FlowLTLParser;
 import uniolunisaar.adam.logic.util.FormulaCreator;
 import uniolunisaar.adam.modelchecker.circuits.CounterExample;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
+import uniolunisaar.adam.modelchecker.exceptions.NotConvertableException;
 import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerParallel;
 import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerSequential;
 import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerFlowLTLParallel;
@@ -87,7 +89,7 @@ public class AdamModelChecker {
      * @param parallel
      * @return
      */
-    public static IRunFormula getModelCheckingFormula(PetriGame originalNet, PetriNet modelCheckingNet, RunFormula f, boolean parallel) {
+    public static ILTLFormula getModelCheckingFormula(PetriGame originalNet, PetriNet modelCheckingNet, RunFormula f, boolean parallel) throws NotConvertableException {
         if (parallel) {
             return FlowLTLTransformerParallel.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
@@ -111,7 +113,7 @@ public class AdamModelChecker {
      * @throws InterruptedException
      * @throws IOException
      */
-    public static CounterExample checkFlowLTLFormula(PetriGame net, RunFormula f, boolean parallel, String path) throws InterruptedException, IOException {
+    public static CounterExample checkFlowLTLFormula(PetriGame net, RunFormula f, boolean parallel, String path) throws InterruptedException, IOException, NotConvertableException {
         if (parallel) {
             return ModelCheckerFlowLTL.checkWithParallelApproach(net, f, path, true);
         } else {

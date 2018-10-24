@@ -13,10 +13,10 @@ import uniolunisaar.adam.logic.util.FormulaCreator;
 import uniolunisaar.adam.modelchecker.circuits.CounterExample;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.modelchecker.exceptions.NotConvertableException;
-import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerParallel;
-import uniolunisaar.adam.modelchecker.transformers.FlowLTLTransformerSequential;
-import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerFlowLTLParallel;
-import uniolunisaar.adam.modelchecker.transformers.PetriNetTransformerFlowLTLSequential;
+import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerParallel;
+import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerSequential;
+import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLParallel;
+import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLSequential;
 
 /**
  *

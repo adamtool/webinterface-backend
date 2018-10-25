@@ -88,6 +88,7 @@ public class AdamModelChecker {
      * @param f - the formula to transform
      * @param parallel
      * @return
+     * @throws uniolunisaar.adam.modelchecker.exceptions.NotConvertableException
      */
     public static ILTLFormula getModelCheckingFormula(PetriGame originalNet, PetriNet modelCheckingNet, RunFormula f, boolean parallel) throws NotConvertableException {
         if (parallel) {

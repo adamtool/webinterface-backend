@@ -12,11 +12,13 @@ import uniolunisaar.adam.logic.flowltlparser.FlowLTLParser;
 import uniolunisaar.adam.logic.util.FormulaCreator;
 import uniolunisaar.adam.modelchecker.circuits.CounterExample;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
+import uniolunisaar.adam.modelchecker.exceptions.ExternalToolException;
 import uniolunisaar.adam.modelchecker.exceptions.NotConvertableException;
 import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerParallel;
 import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerSequential;
 import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLParallel;
 import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLSequential;
+import uniolunisaar.adam.tools.ProcessNotStartedException;
 
 /**
  *
@@ -114,7 +116,7 @@ public class AdamModelChecker {
      * @throws InterruptedException
      * @throws IOException
      */
-    public static CounterExample checkFlowLTLFormula(PetriGame net, RunFormula f, boolean parallel, String path) throws InterruptedException, IOException, NotConvertableException {
+    public static CounterExample checkFlowLTLFormula(PetriGame net, RunFormula f, boolean parallel, String path) throws InterruptedException, IOException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         if (parallel) {
             return ModelCheckerFlowLTL.checkWithParallelApproach(net, f, path, true);
         } else {

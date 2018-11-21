@@ -6,18 +6,20 @@ import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
 import uniolunisaar.adam.logic.flowltl.ILTLFormula;
-import uniolunisaar.adam.logic.flowltl.IRunFormula;
+import uniolunisaar.adam.logic.flowltl.LTLFormula;
 import uniolunisaar.adam.logic.flowltl.RunFormula;
 import uniolunisaar.adam.logic.flowltlparser.FlowLTLParser;
 import uniolunisaar.adam.logic.util.FormulaCreator;
 import uniolunisaar.adam.modelchecker.circuits.CounterExample;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
+import uniolunisaar.adam.modelchecker.circuits.ModelCheckerLTL;
 import uniolunisaar.adam.modelchecker.exceptions.ExternalToolException;
 import uniolunisaar.adam.modelchecker.exceptions.NotConvertableException;
 import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerParallel;
 import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerSequential;
 import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLParallel;
 import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLSequential;
+import uniolunisaar.adam.modelchecker.util.Statistics;
 import uniolunisaar.adam.tools.ProcessNotStartedException;
 
 /**
@@ -49,7 +51,7 @@ public class AdamModelChecker {
      * @return
      * @throws ParseException
      */
-    public static IRunFormula parseFlowLTLFormula(PetriNet net, String formula) throws ParseException {
+    public static RunFormula parseFlowLTLFormula(PetriNet net, String formula) throws ParseException {
         return FlowLTLParser.parse(net, formula);
     }
 
@@ -71,7 +73,7 @@ public class AdamModelChecker {
         if (parallel) {
             return PetriNetTransformerFlowLTLParallel.createNet4ModelCheckingParallelOneFlowFormula(game);
         } else {
-            return PetriNetTransformerFlowLTLSequential.createNet4ModelCheckingSequential(game, f);
+            return PetriNetTransformerFlowLTLSequential.createNet4ModelCheckingSequential(game, f, true);
         }
     }
 
@@ -104,23 +106,46 @@ public class AdamModelChecker {
      * Checks the flow ltl formula f on the given Petri net 'net' which is
      * annotated with token flows.
      *
-     * If parallel is set the parallel algorithm is used, which is only
-     * implemented for one flow formula. Otherwise the sequential approach is
-     * used.
+     * It stats != null an object is returned containing some statistical data,
+     * including the model checking net and formula.
      *
      * @param net
+     * @param mc
      * @param f
-     * @param parallel
      * @param path - a path where additionally files are saved.
+     * @param stats
      * @return
      * @throws InterruptedException
      * @throws IOException
+     * @throws uniol.apt.io.parser.ParseException
+     * @throws uniolunisaar.adam.modelchecker.exceptions.NotConvertableException
+     * @throws uniolunisaar.adam.tools.ProcessNotStartedException
+     * @throws uniolunisaar.adam.modelchecker.exceptions.ExternalToolException
      */
-    public static CounterExample checkFlowLTLFormula(PetriGame net, RunFormula f, boolean parallel, String path) throws InterruptedException, IOException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
-        if (parallel) {
-            return ModelCheckerFlowLTL.checkWithParallelApproach(net, f, path, true);
-        } else {
-            return ModelCheckerFlowLTL.checkWithSequentialApproach(net, f, path, true);
-        }
+    public static CounterExample checkFlowLTLFormula(PetriGame net, ModelCheckerFlowLTL mc, RunFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+        return mc.check(net, f, path, false, stats);
+    }
+
+    /**
+     * For a parsed formula f, if f.getPhi() instanceof ILTLFormula holds use
+     * the standard LTL model checking procedure with this methode and
+     * f.toLTLFormula(). Notify the user.
+     *
+     * It stats != null an object is returned containing some statistical data.
+     *
+     * @param net
+     * @param mc
+     * @param f
+     * @param path
+     * @param stats
+     * @return
+     * @throws InterruptedException
+     * @throws IOException
+     * @throws uniol.apt.io.parser.ParseException
+     * @throws ProcessNotStartedException
+     * @throws ExternalToolException
+     */
+    public static CounterExample checkLTLFormula(PetriGame net, ModelCheckerLTL mc, LTLFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
+        return mc.check(net, f, path, false, stats);
     }
 }

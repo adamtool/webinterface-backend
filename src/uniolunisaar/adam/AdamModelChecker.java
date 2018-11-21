@@ -10,9 +10,9 @@ import uniolunisaar.adam.logic.flowltl.LTLFormula;
 import uniolunisaar.adam.logic.flowltl.RunFormula;
 import uniolunisaar.adam.logic.flowltlparser.FlowLTLParser;
 import uniolunisaar.adam.logic.util.FormulaCreator;
-import uniolunisaar.adam.modelchecker.circuits.CounterExample;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerLTL;
+import uniolunisaar.adam.modelchecker.circuits.ModelCheckingResult;
 import uniolunisaar.adam.modelchecker.exceptions.ExternalToolException;
 import uniolunisaar.adam.modelchecker.exceptions.NotConvertableException;
 import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerParallel;
@@ -122,7 +122,7 @@ public class AdamModelChecker {
      * @throws uniolunisaar.adam.tools.ProcessNotStartedException
      * @throws uniolunisaar.adam.modelchecker.exceptions.ExternalToolException
      */
-    public static CounterExample checkFlowLTLFormula(PetriGame net, ModelCheckerFlowLTL mc, RunFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+    public static ModelCheckingResult checkFlowLTLFormula(PetriGame net, ModelCheckerFlowLTL mc, RunFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         return mc.check(net, f, path, false, stats);
     }
 
@@ -145,7 +145,7 @@ public class AdamModelChecker {
      * @throws ProcessNotStartedException
      * @throws ExternalToolException
      */
-    public static CounterExample checkLTLFormula(PetriGame net, ModelCheckerLTL mc, LTLFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
+    public static ModelCheckingResult checkLTLFormula(PetriGame net, ModelCheckerLTL mc, LTLFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
         return mc.check(net, f, path, false, stats);
     }
 }

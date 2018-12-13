@@ -3,23 +3,23 @@ package uniolunisaar.adam;
 import java.io.IOException;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
+import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.winningconditions.WinningCondition;
-import uniolunisaar.adam.logic.logics.ltl.flowltl.ILTLFormula;
-import uniolunisaar.adam.logic.logics.ltl.flowltl.LTLFormula;
-import uniolunisaar.adam.logic.logics.ltl.flowltl.RunFormula;
-import uniolunisaar.adam.logic.logics.ltl.flowltlparser.FlowLTLParser;
-import uniolunisaar.adam.logic.util.FormulaCreator;
+import uniolunisaar.adam.ds.logics.ltl.LTLFormula;
+import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
+import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
+import uniolunisaar.adam.util.logics.FormulaCreator;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckerLTL;
 import uniolunisaar.adam.modelchecker.circuits.ModelCheckingResult;
-import uniolunisaar.adam.modelchecker.exceptions.ExternalToolException;
-import uniolunisaar.adam.modelchecker.exceptions.NotConvertableException;
-import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerParallel;
-import uniolunisaar.adam.modelchecker.transformers.formula.FlowLTLTransformerSequential;
-import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLParallel;
-import uniolunisaar.adam.modelchecker.transformers.petrinet.PetriNetTransformerFlowLTLSequential;
-import uniolunisaar.adam.modelchecker.util.Statistics;
+import uniolunisaar.adam.exceptions.ExternalToolException;
+import uniolunisaar.adam.exception.logics.NotConvertableException;
+import uniolunisaar.adam.logic.transformers.flowltl.FlowLTLTransformerParallel;
+import uniolunisaar.adam.logic.transformers.flowltl.FlowLTLTransformerSequential;
+import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNParallel;
+import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNSequential;
+import uniolunisaar.adam.modelchecker.util.ModelcheckingStatistics;
 import uniolunisaar.adam.tools.ProcessNotStartedException;
 
 /**
@@ -71,9 +71,9 @@ public class AdamModelChecker {
      */
     public static PetriNet getModelCheckingNet(PetriGame game, RunFormula f, boolean parallel) {
         if (parallel) {
-            return PetriNetTransformerFlowLTLParallel.createNet4ModelCheckingParallelOneFlowFormula(game);
+            return PnwtAndFlowLTLtoPNParallel.createNet4ModelCheckingParallelOneFlowFormula(game);
         } else {
-            return PetriNetTransformerFlowLTLSequential.createNet4ModelCheckingSequential(game, f, true);
+            return PnwtAndFlowLTLtoPNSequential.createNet4ModelCheckingSequential(game, f, true);
         }
     }
 
@@ -92,7 +92,7 @@ public class AdamModelChecker {
      * @param f - the formula to transform
      * @param parallel
      * @return
-     * @throws uniolunisaar.adam.modelchecker.exceptions.NotConvertableException
+     * @throws uniolunisaar.adam.exception.logics.NotConvertableException
      */
     public static ILTLFormula getModelCheckingFormula(PetriGame originalNet, PetriNet modelCheckingNet, RunFormula f, boolean parallel) throws NotConvertableException {
         if (parallel) {
@@ -118,11 +118,11 @@ public class AdamModelChecker {
      * @throws InterruptedException
      * @throws IOException
      * @throws uniol.apt.io.parser.ParseException
-     * @throws uniolunisaar.adam.modelchecker.exceptions.NotConvertableException
+     * @throws uniolunisaar.adam.exception.logics.NotConvertableException
      * @throws uniolunisaar.adam.tools.ProcessNotStartedException
-     * @throws uniolunisaar.adam.modelchecker.exceptions.ExternalToolException
+     * @throws uniolunisaar.adam.exceptions.ExternalToolException
      */
-    public static ModelCheckingResult checkFlowLTLFormula(PetriGame net, ModelCheckerFlowLTL mc, RunFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+    public static ModelCheckingResult checkFlowLTLFormula(PetriGame net, ModelCheckerFlowLTL mc, RunFormula f, String path, ModelcheckingStatistics stats) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         return mc.check(net, f, path, false, stats);
     }
 
@@ -145,7 +145,7 @@ public class AdamModelChecker {
      * @throws ProcessNotStartedException
      * @throws ExternalToolException
      */
-    public static ModelCheckingResult checkLTLFormula(PetriGame net, ModelCheckerLTL mc, LTLFormula f, String path, Statistics stats) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
+    public static ModelCheckingResult checkLTLFormula(PetriGame net, ModelCheckerLTL mc, LTLFormula f, String path, ModelcheckingStatistics stats) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
         return mc.check(net, f, path, false, stats);
     }
 }

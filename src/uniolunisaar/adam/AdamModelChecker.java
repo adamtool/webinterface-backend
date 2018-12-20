@@ -5,7 +5,7 @@ import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.ds.winningconditions.WinningCondition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.logics.ltl.LTLFormula;
 import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
@@ -37,7 +37,7 @@ public class AdamModelChecker {
      * @param winCon - only implemented for A_SAFETY, A_REACHABILITY, A_BUCHI
      * @return
      */
-    public static String toFlowLTLFormula(PetriGame game, WinningCondition.Objective winCon) {
+    public static String toFlowLTLFormula(PetriGame game, Condition.Objective winCon) {
         return FormulaCreator.createLTLFormulaOfWinCon(game, winCon).toSymbolString();
     }
 

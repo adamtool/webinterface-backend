@@ -3,7 +3,7 @@ package uniolunisaar.adam;
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.util.Pair;
-import uniolunisaar.adam.exceptions.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.ds.exceptions.NetNotSafeException;
 import uniolunisaar.adam.ds.exceptions.NoStrategyExistentException;
 import uniolunisaar.adam.ds.exceptions.NoSuitableDistributionFoundException;

@@ -19,35 +19,35 @@ public class Adam {
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%   
     public static PetriGame genConcurrentMaschines(int nb_machines, int nb_workpieces) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genConcurrentMaschines(nb_machines, nb_workpieces);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genConcurrentMaschines(nb_machines, nb_workpieces);
     }
 
     public static PetriGame genContainerTerminal(int nb_systems) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genContainerTerminal(nb_systems);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genContainerTerminal(nb_systems);
     }
 
     public static PetriGame genDocumentWorkflow(int nb_clerks, boolean allyes) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genDocumentWorkflow(nb_clerks, allyes);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genDocumentWorkflow(nb_clerks, allyes);
     }
 
     public static PetriGame genEmergencyBreakdown(int nb_crit, int nb_norm) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genEmergencyBreakdown(nb_crit, nb_norm);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genEmergencyBreakdown(nb_crit, nb_norm);
     }
 
     public static PetriGame genJobProcessing(int nb_machines) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genJobProcessing(nb_machines);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genJobProcessing(nb_machines);
     }
 
     public static PetriGame genSecuritySystem(int nb_systems) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genSecuritySystem(nb_systems);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genSecuritySystem(nb_systems);
     }
 
     public static PetriGame genSelfReconfiguringRobots(int nb_robots, int nb_destroy) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genSelfReconfiguringRobots(nb_robots, nb_destroy);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genSelfReconfiguringRobots(nb_robots, nb_destroy);
     }
 
     public static PetriGame genWatchdog(int nb_machines, boolean search, boolean partial_observation) {
-        return uniolunisaar.adam.generators.synthesis.AdamBehavior.genWatchdog(nb_machines, search, partial_observation);
+        return uniolunisaar.adam.generators.pg.AdamBehavior.genWatchdog(nb_machines, search, partial_observation);
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

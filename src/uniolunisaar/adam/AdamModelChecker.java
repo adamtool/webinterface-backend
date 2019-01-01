@@ -10,16 +10,16 @@ import uniolunisaar.adam.ds.logics.ltl.LTLFormula;
 import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
 import uniolunisaar.adam.util.logics.FormulaCreator;
-import uniolunisaar.adam.modelchecker.circuits.ModelCheckerFlowLTL;
-import uniolunisaar.adam.modelchecker.circuits.ModelCheckerLTL;
-import uniolunisaar.adam.modelchecker.circuits.ModelCheckingResult;
+import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
+import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerLTL;
+import uniolunisaar.adam.ds.modelchecking.ModelCheckingResult;
 import uniolunisaar.adam.exceptions.ExternalToolException;
 import uniolunisaar.adam.exception.logics.NotConvertableException;
 import uniolunisaar.adam.logic.transformers.flowltl.FlowLTLTransformerParallel;
 import uniolunisaar.adam.logic.transformers.flowltl.FlowLTLTransformerSequential;
 import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNParallel;
 import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNSequential;
-import uniolunisaar.adam.modelchecker.util.ModelcheckingStatistics;
+import uniolunisaar.adam.ds.modelchecking.ModelcheckingStatistics;
 import uniolunisaar.adam.tools.ProcessNotStartedException;
 
 /**

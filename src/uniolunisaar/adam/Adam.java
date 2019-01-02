@@ -7,9 +7,10 @@ import uniol.apt.io.renderer.RenderException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.logic.AdamBehavior;
 import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.PGTools;
+import uniolunisaar.adam.util.PNWTTools;
 
 /**
  *
@@ -52,20 +53,20 @@ public class Adam {
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public static PetriGame getPetriGame(String aptFile) throws NotSupportedGameException, ParseException, IOException, CouldNotFindSuitableConditionException, CouldNotCalculateException {
-        return AdamBehavior.getPetriGame(aptFile);
+        return PGTools.getPetriGame(aptFile, false, true);
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% EXPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public static String getAPT(PetriGame net) throws RenderException {
-        return AdamBehavior.getAPT(net, true);
+        return PNWTTools.getAPT(net, true, true);
     }
 
     public static String getDot(PetriGame game, boolean withLabels) {
-        return AdamBehavior.getDot(game, withLabels);
+        return PNWTTools.pnwt2Dot(game, withLabels);
     }
 
     public static String getTikz(PetriGame game) {
-        return AdamBehavior.getTikz(game);
+        return PGTools.pg2Tikz(game);
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% LOGGER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

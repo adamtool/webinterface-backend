@@ -21,6 +21,7 @@ import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNSequential
 import uniolunisaar.adam.ds.modelchecking.ModelcheckingStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
+import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData;
 
 /**
  *
@@ -30,9 +31,9 @@ public class AdamModelChecker {
 
     /**
      * Returns true iff the given formula is a plain LTL formula.
-     * 
+     *
      * @param f
-     * @return 
+     * @return
      */
     public static boolean isLTLFormula(RunFormula f) {
         return (f.getPhi() instanceof ILTLFormula);
@@ -133,7 +134,8 @@ public class AdamModelChecker {
      * @throws uniolunisaar.adam.exceptions.ExternalToolException
      */
     public static ModelCheckingResult checkFlowLTLFormula(PetriNetWithTransits net, ModelCheckerFlowLTL mc, RunFormula f, String path, ModelcheckingStatistics stats) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
-        return mc.check(net, f, path, false, stats);
+        ModelCheckingOutputData data = new ModelCheckingOutputData(path, false, false, false);
+        return mc.check(net, f, data, stats);
     }
 
     /**
@@ -156,6 +158,7 @@ public class AdamModelChecker {
      * @throws ExternalToolException
      */
     public static ModelCheckingResult checkLTLFormula(PetriNetWithTransits net, ModelCheckerLTL mc, LTLFormula f, String path, ModelcheckingStatistics stats) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
-        return mc.check(net, f, path, false, stats);
+        ModelCheckingOutputData data = new ModelCheckingOutputData(path, false, false, false);
+        return mc.check(net, f, data, stats);
     }
 }

@@ -13,7 +13,7 @@ import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerLTL;
 import uniolunisaar.adam.ds.modelchecking.ModelCheckingResult;
 import uniolunisaar.adam.exceptions.ExternalToolException;
-import uniolunisaar.adam.exception.logics.NotConvertableException;
+import uniolunisaar.adam.exceptions.logics.NotConvertableException;
 import uniolunisaar.adam.logic.transformers.flowltl.FlowLTLTransformerParallel;
 import uniolunisaar.adam.logic.transformers.flowltl.FlowLTLTransformerSequential;
 import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNParallel;
@@ -102,7 +102,7 @@ public class AdamModelChecker {
      * @param f - the formula to transform
      * @param parallel
      * @return
-     * @throws uniolunisaar.adam.exception.logics.NotConvertableException
+     * @throws uniolunisaar.adam.exceptions.logics.NotConvertableException
      */
     public static ILTLFormula getModelCheckingFormula(PetriNetWithTransits originalNet, PetriNet modelCheckingNet, RunFormula f, boolean parallel) throws NotConvertableException {
         if (parallel) {
@@ -128,7 +128,7 @@ public class AdamModelChecker {
      * @throws InterruptedException
      * @throws IOException
      * @throws uniol.apt.io.parser.ParseException
-     * @throws uniolunisaar.adam.exception.logics.NotConvertableException
+     * @throws uniolunisaar.adam.exceptions.logics.NotConvertableException
      * @throws uniolunisaar.adam.exceptions.ProcessNotStartedException
      * @throws uniolunisaar.adam.exceptions.ExternalToolException
      */

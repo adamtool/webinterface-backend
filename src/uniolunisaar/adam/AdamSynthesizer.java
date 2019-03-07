@@ -1,8 +1,10 @@
 package uniolunisaar.adam;
 
 import java.io.IOException;
+import java.util.List;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.util.Pair;
+import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pg.NetNotSafeException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
@@ -14,6 +16,10 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
+import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphGameBuilderStepwise;
+import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
+import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverOptions;
 
 /**
@@ -111,6 +117,18 @@ public class AdamSynthesizer {
 
     public static BDDGraph getGraphGameBDD(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getGraphGame(net, win, so);
+    }
+
+    public static BDDSolver<? extends Condition> getBDDSolver(PetriGame game, Condition.Objective win, BDDSolverOptions so) throws SolvingException {
+        return BDDSolverFactory.getInstance().getSolver(game, win, false, so);
+    }
+
+    public static BDDState getInitialGraphGameState(BDDGraph graph, BDDSolver<? extends Condition> solver) {
+        return BDDGraphGameBuilderStepwise.getInitialState(graph, solver);
+    }
+
+    public static Pair<List<Flow>, List<BDDState>> getSuccessors(BDDState state, BDDGraph graph, BDDSolver<? extends Condition> solver) {
+        return BDDGraphGameBuilderStepwise.getSuccessors(state, graph, solver);
     }
 //
 //    public static BDDGraph getGraphGameBDD(PetriGame game, Condition win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException {

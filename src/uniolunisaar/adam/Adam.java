@@ -68,7 +68,7 @@ public class Adam {
     public static String getTikz(PetriGame game) {
         return PGTools.pg2Tikz(game);
     }
-
+    
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% LOGGER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Sets the streams of the logger to the given streams as long they are not

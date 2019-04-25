@@ -15,18 +15,29 @@ import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraph;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDGraphGameBuilderStepwise;
 import uniolunisaar.adam.symbolic.bddapproach.graph.BDDState;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolver;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverFactory;
 import uniolunisaar.adam.symbolic.bddapproach.solver.BDDSolverOptions;
+import uniolunisaar.adam.util.PGTools;
 
 /**
  *
  * @author Manuel Gieseking
  */
 public class AdamSynthesizer {
+
+    public static String getTikz(PetriGame game) {
+        return PGTools.pg2Tikz(game);
+    }
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    public static PetriGame getPetriGame(String aptFile) throws NotSupportedGameException, ParseException, IOException, CouldNotFindSuitableConditionException, CouldNotCalculateException {
+        return PGTools.getPetriGame(aptFile, false, true);
+    }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%% SOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% BDDSOLVER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

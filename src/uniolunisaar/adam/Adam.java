@@ -1,15 +1,12 @@
 package uniolunisaar.adam;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.renderer.RenderException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
-import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
+import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
+import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.tools.Logger;
-import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PNWTTools;
 
 /**
@@ -51,11 +48,6 @@ public class Adam {
         return uniolunisaar.adam.generators.pg.AdamBehavior.genWatchdog(nb_machines, search, partial_observation);
     }
 
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    public static PetriGame getPetriGame(String aptFile) throws NotSupportedGameException, ParseException, IOException, CouldNotFindSuitableConditionException, CouldNotCalculateException {
-        return PGTools.getPetriGame(aptFile, false, true);
-    }
-
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% EXPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public static String getAPT(PetriGame net) throws RenderException {
         return PNWTTools.getAPT(net, true, true);
@@ -65,10 +57,10 @@ public class Adam {
         return PNWTTools.pnwt2Dot(game, withLabels);
     }
 
-    public static String getTikz(PetriGame game) {
-        return PGTools.pg2Tikz(game);
+    public static Condition.Objective getCondition(PetriNetWithTransits net) throws CouldNotFindSuitableConditionException {
+        return PNWTTools.parseConditionFromNetExtensionText(net);
     }
-    
+
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% LOGGER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     /**
      * Sets the streams of the logger to the given streams as long they are not

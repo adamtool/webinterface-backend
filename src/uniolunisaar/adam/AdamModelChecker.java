@@ -21,6 +21,7 @@ import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNSequential
 import uniolunisaar.adam.ds.modelchecking.ModelcheckingStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
+import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData;
 
 /**
@@ -28,6 +29,11 @@ import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData
  * @author Manuel Gieseking
  */
 public class AdamModelChecker {
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    public static PetriNetWithTransits getPetriNetWithTransits(String aptFile) throws ParseException, IOException {
+        return PNWTTools.getPetriNetWithTransits(aptFile, true);
+    }
 
     /**
      * Returns true iff the given formula is a plain LTL formula.

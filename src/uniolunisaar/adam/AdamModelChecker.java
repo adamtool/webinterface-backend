@@ -21,6 +21,9 @@ import uniolunisaar.adam.logic.transformers.pnwt2pn.PnwtAndFlowLTLtoPNSequential
 import uniolunisaar.adam.ds.modelchecking.ModelcheckingStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
+import uniolunisaar.adam.generators.pnwt.RedundantNetwork;
+import uniolunisaar.adam.generators.pnwt.SmartFactory;
+import uniolunisaar.adam.generators.pnwt.UpdatingNetwork;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData;
 
@@ -29,6 +32,50 @@ import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData
  * @author Manuel Gieseking
  */
 public class AdamModelChecker {
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+     *
+     * @param nb_products > 0
+     * @param nb_shared_machines
+     * @param nb_specific_machines
+     * @return
+     */
+    public static PetriNetWithTransits generateSmartFactory(int nb_products, int nb_shared_machines, int nb_specific_machines) {
+        return SmartFactory.createFactory(nb_products, nb_shared_machines, nb_specific_machines);
+    }
+
+    /**
+     *
+     * @param nb_nodes > 2
+     * @return
+     */
+    public static PetriNetWithTransits generateSwitchFailure(int nb_nodes) {
+        return UpdatingNetwork.create(nb_nodes);
+    }
+
+    /**
+     *
+     * @param nb_nodesU > 0
+     * @param nb_nodesD > 0
+     * @param version (B, U, F, RF)
+     * @return
+     */
+    public static PetriNetWithTransits generateRedundantPipeline(int nb_nodesU, int nb_nodesD, String version) {
+        PetriNetWithTransits net = null;
+        if (version.equals("B")) {
+            net = RedundantNetwork.getBasis(nb_nodesU, nb_nodesD);
+        } else if (version.equals("U")) {
+            net = RedundantNetwork.getUpdatingNetwork(nb_nodesU, nb_nodesD);
+        } else if (version.equals("F")) {
+            net = RedundantNetwork.getUpdatingStillNotFixedMutexNetwork(nb_nodesU, nb_nodesD);
+        } else if (version.equals("RF")) {
+            net = RedundantNetwork.getUpdatingStillNotFixedMutexNetwork(nb_nodesU, nb_nodesD);
+        } else {
+//            throw new CommandLineParseException("The version '" + version + "' is not a valid options.");
+        }
+        return net;
+    }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public static PetriNetWithTransits getPetriNetWithTransits(String aptFile) throws ParseException, IOException {

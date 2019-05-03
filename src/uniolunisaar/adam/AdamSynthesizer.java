@@ -17,9 +17,11 @@ import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
+import uniolunisaar.adam.generators.pg.CarRouting;
 import uniolunisaar.adam.generators.pg.Clerks;
 import uniolunisaar.adam.generators.pg.ContainerTerminal;
 import uniolunisaar.adam.generators.pg.EmergencyBreakdown;
+import uniolunisaar.adam.generators.pg.LoopUnrolling;
 import uniolunisaar.adam.generators.pg.ManufactorySystem;
 import uniolunisaar.adam.generators.pg.SecuritySystem;
 import uniolunisaar.adam.generators.pg.SelfOrganizingRobots;
@@ -40,6 +42,29 @@ import uniolunisaar.adam.util.PGTools;
 public class AdamSynthesizer {
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+    /**
+     *
+     * @param nb_routes > 1
+     * @param nb_cars > 1
+     * @param version (A, E, AR)
+     * @param withPartition
+     * @return
+     * @throws ModuleException
+     */
+    public static PetriGame genCarRouting(int nb_routes, int nb_cars, String version, boolean withPartition) throws ModuleException {
+        PetriGame game;
+        if (version.equals("A")) {
+            game = CarRouting.createAReachabilityVersion(nb_routes, nb_cars, withPartition);
+        } else if (version.equals("E")) {
+            game = CarRouting.createEReachabilityVersion(nb_routes, nb_cars, withPartition);
+        } else if (version.equals("AR")) {
+            game = CarRouting.createAReachabilityVersionWithRerouting(nb_routes, nb_cars, withPartition);
+        } else {
+            throw new ModuleException("The version '" + version + "' not yet implemented.");
+        }
+        return game;
+    }
+
     /**
      *
      * @param nb_machines >1
@@ -109,6 +134,10 @@ public class AdamSynthesizer {
         return game;
     }
 
+    public static PetriGame genLoopUnrolling(int nb_unrollings, boolean newChains, boolean withPartition) {
+        return LoopUnrolling.createESafetyVersion(nb_unrollings, newChains, withPartition);
+    }
+
     /**
      *
      * @param nb_systems >1
@@ -144,12 +173,12 @@ public class AdamSynthesizer {
     }
 
     /**
-     * 
+     *
      * @param nb_machines > 0
      * @param search
      * @param partial_observation
      * @param withPartition
-     * @return 
+     * @return
      */
     public static PetriGame genWatchdog(int nb_machines, boolean search, boolean partial_observation, boolean withPartition) {
         return Watchdog.generate(nb_machines, search, partial_observation, withPartition);

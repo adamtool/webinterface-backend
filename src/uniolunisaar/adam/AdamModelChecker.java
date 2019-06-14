@@ -134,6 +134,9 @@ public class AdamModelChecker {
      * @return
      */
     public static PetriNet getModelCheckingNet(PetriNetWithTransits net, RunFormula f, boolean parallel) {
+        if (isLTLFormula(f)) {
+            return net;
+        }
         if (parallel) {
             return PnwtAndFlowLTLtoPNParallel.createNet4ModelCheckingParallelOneFlowFormula(net);
         } else {

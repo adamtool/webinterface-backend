@@ -51,4 +51,56 @@
 	<target name="clean-all" depends="loadProperties" description="Cleans all temporary files including the reports">
 		<antcall target="core.fu.clean-all"/>
 	</target>
+
+<!-- %%%%%%%%%%%%%%%%%%%%%%%%%%% TARGETS FOR THE SINGLE SUBTOOLS WITHOUT THE UI %%%%%%%%%%%% -->
+    <target name="deploy_mc" depends="clean-all" description="Builds a jar with all its dependencies for the model checker">
+        <antcall target="jar-standalone">
+            <param name="libFile" value="libsMC.res"/>
+        </antcall>
+		<jar destfile="adam_mc.jar">
+			<zipfileset includes="**/*.class" src="./adam_core-standalone.jar"
+                 excludes="**/graph/**, **/generators/**,
+                            **/Adam.class, **/AdamModelChecker.class, **/AdamSynthesizer.class, **/AdamBounded.class"/>
+			<zipfileset includes="**/*.stg" src="./adam_core-standalone.jar"/>
+		<!--	<zipfileset dir="${libfolder}" includes="quabs_mac" fullpath="lib/quabs_mac"/>
+			<zipfileset dir="${libfolder}" includes="quabs_unix" fullpath="lib/quabs_unix"/>-->
+			<manifest>
+				<attribute name="Main-Class" value="uniolunisaar.adam.main.AdamModelchecker"/>
+			</manifest>
+		</jar>	
+	</target>
+
+	<target name="deploy_synth" depends="clean-all" description="Builds a jar with all its dependencies for the synthesizer">
+        <antcall target="jar-standalone">
+            <param name="libFile" value="libsSynth.res"/>
+        </antcall>
+		
+		<jar destfile="adam_synt.jar">
+			<zipfileset includes="**/*.class" src="./adam_core-standalone.jar"
+                  excludes="**/circuits/**, **/graph/**, **/generators/**,
+                            **/Adam.class, **/AdamModelChecker.class, **/AdamSynthesizer.class"/>
+			<zipfileset includes="**/*.stg" src="./adam_core-standalone.jar"/>
+		<!--	<zipfileset dir="${libfolder}" includes="quabs_mac" fullpath="lib/quabs_mac"/>
+			<zipfileset dir="${libfolder}" includes="quabs_unix" fullpath="lib/quabs_unix"/>-->
+			<manifest>
+				<attribute name="Main-Class" value="uniolunisaar.adam.main.AdamSynthesizer"/>
+			</manifest>
+		</jar>	
+	</target>
+
+	<target name="deploy_bounded" depends="clean-all" description="Builds a jar with all its dependencies for the bounded approach">
+        <antcall target="jar-standalone">
+            <param name="libFile" value="libsBounded.res"/>
+        </antcall>
+		
+		<jar destfile="adam_bounded.jar">
+			<zipfileset includes="**/*.class" src="./adam_core-standalone.jar"
+                  excludes="**/circuits/**, **/graph/**, **/generators/**,
+                            **/Adam.class, **/AdamModelChecker.class, **/AdamSynthesizer.class"/>
+			<zipfileset includes="**/*.stg" src="./adam_core-standalone.jar"/>
+			<manifest>
+				<attribute name="Main-Class" value="uniolunisaar.adam.main.AdamBounded"/>
+			</manifest>
+		</jar>	
+	</target>
 </project>

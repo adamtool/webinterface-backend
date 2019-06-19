@@ -52,6 +52,15 @@
 		<antcall target="core.fu.clean-all"/>
 	</target>
 
+    <target name="deploy" depends="clean-all" description="Builds a jar with all its dependencies for the webinterface">
+        <antcall target="jar-standalone" />
+		<jar destfile="adam_core.jar">
+			<zipfileset includes="**/*.class" src="./adam_core-standalone.jar"
+                 excludes="**/main/**, **/bounded/**"/>
+			<zipfileset includes="**/*.stg" src="./adam_core-standalone.jar"/>
+		</jar>	
+	</target>
+
 <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%% TARGETS FOR THE SINGLE SUBTOOLS WITHOUT THE UI %%%%%%%%%%%% -->
     <target name="deploy_mc" depends="clean-all" description="Builds a jar with all its dependencies for the model checker">
         <antcall target="jar-standalone">

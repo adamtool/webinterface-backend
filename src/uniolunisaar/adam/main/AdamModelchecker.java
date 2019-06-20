@@ -13,10 +13,8 @@ import uniolunisaar.adam.logic.externaltools.modelchecking.Abc;
 import uniolunisaar.adam.logic.externaltools.modelchecking.Abc.VerificationAlgo;
 import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
-import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PNWTTools;
-import uniolunisaar.adam.util.logics.benchmarks.mc.BenchmarksMC;
 import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData;
 
 /**
@@ -25,24 +23,39 @@ import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData
  */
 public class AdamModelchecker {
 
+    /**
+     *
+     * @param args 0 -> Input path to APT 1 -> Output path for data 2 ->
+     * Verifier 3 -> ABC parameters 4 -> Formula (if "", then it's expected to
+     * be annotated within the APT input file) 5 -> if != "" sizes would be
+     * written to the given path
+     *
+     * @throws ParseException
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws NotConvertableException
+     * @throws ProcessNotStartedException
+     * @throws ExternalToolException
+     */
     public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         String input = args[0];
         PetriNet net = Tools.getPetriNet(input);
 
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
-        String formula = (String) pnwt.getExtension("formula");
+        String formula = (args[4].isEmpty()) ? (String) pnwt.getExtension("formula") : args[4];
 //        String formula = line.getOptionValue(PARAMETER_FORMULA);
         RunFormula f = FlowLTLParser.parse(pnwt, formula);
 
         String output = args[1];
 
-        ModelcheckingStatistics stats = new ModelcheckingStatistics();
-        BenchmarksMC.EDACC = true;
-        Logger.getInstance().addMessageStream("edacc", System.out);
-        Logger.getInstance().setSilent(true);
+        ModelcheckingStatistics stats = null;
+        if (!args[5].isEmpty()) {
+            stats = new ModelcheckingStatistics(args[5]);
+        } else {
+            stats = new ModelcheckingStatistics();
+        }
 
         Abc.VerificationAlgo algo = null;
-
         String veri = args[2];
         if (veri.equals("IC3")) {
             algo = VerificationAlgo.IC3;
@@ -67,6 +80,9 @@ public class AdamModelchecker {
 
         ModelCheckingOutputData data = new ModelCheckingOutputData(output, false, false, false);
         mc.check(pnwt, f, data, stats);
+        if (!args[5].isEmpty()) {
+            stats.addResultToFile();
+        }
     }
 
 }

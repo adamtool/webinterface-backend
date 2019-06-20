@@ -53,7 +53,7 @@ public class AdamBounded {
         
         String filename = checkValidBenchmarkAndParameter(parameter, benchmark);
         if (option.equals("tc")) {
-        	for (int i = 2; i <= n;) {
+        	for (int i = 2; i <= n; ++i) {
         		QbfConSolverOptions options = new QbfConSolverOptions(i, b);
                 QbfConSolver<? extends Condition> solver = QbfConSolverFactory.getInstance().getSolver(filename, true, (QbfConSolverOptions)options);
                 boolean succ = solver.existsWinningStrategy();
@@ -63,7 +63,7 @@ public class AdamBounded {
         	}
         
         } else {
-        	for (int i = 2; i <= n;) {
+        	for (int i = 2; i <= n; ++i) {
         		QbfSolverOptions options = new QbfSolverOptions(i, b);
                 QbfSolver<? extends Condition> solver = QbfSolverFactory.getInstance().getSolver(filename, true, (QbfSolverOptions)options);
                 boolean succ = solver.existsWinningStrategy();

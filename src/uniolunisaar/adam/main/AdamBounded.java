@@ -25,8 +25,9 @@ public class AdamBounded {
 	 * @param args  
 	 * 				0 -> seq oder tc
 	 * 				1 -> bound n
-	 *      		2 -> benchmark name
-	 *      		3 -> benchmark parameter
+	 * 				2 -> bound b
+	 *      		3 -> benchmark name
+	 *      		4 -> benchmark parameter
 	 * 
 	 * @param args
 	 * @throws IOException
@@ -37,34 +38,36 @@ public class AdamBounded {
 	 */
 	public static void main(String[] args) throws IOException, ParseException, CouldNotFindSuitableConditionException, SolvingException, CalculationInterruptedException {
 		String option = args[0];
-		String b = args[1];
-		String benchmark = args[2];
-		String benchmarkParameter = args[3];  
+		String nn = args[1];
+		String bb = args[2];
+		String benchmark = args[3];
+		String benchmarkParameter = args[4];  
         
         if (!(option.equals("tc"))&&!(option.equals("seq"))) {
         	System.out.println("Invalid solver option, tc for true concurrent and seq for sequential solving available");
         	return;
         }
         int parameter = Integer.parseInt(benchmarkParameter);
-        int bound = Integer.parseInt(b);
+        int n = Integer.parseInt(nn);
+        int b = Integer.parseInt(bb);
         
         String filename = checkValidBenchmarkAndParameter(parameter, benchmark);
         if (option.equals("tc")) {
-        	for (int i = 2; i <= bound;) {
-        		QbfConSolverOptions options = new QbfConSolverOptions();
+        	for (int i = 2; i <= n;) {
+        		QbfConSolverOptions options = new QbfConSolverOptions(i, b);
                 QbfConSolver<? extends Condition> solver = QbfConSolverFactory.getInstance().getSolver(filename, true, (QbfConSolverOptions)options);
                 boolean succ = solver.existsWinningStrategy();
-                System.out.println("Solver: tc; Benchmark: " + benchmark + "; Bound: " + bound);
+                System.out.println("Solver: tc; Benchmark: " + benchmark + "; Bound: " + i);
                 if (succ)
                 	return;
         	}
         
         } else {
-        	for (int i = 2; i <= bound;) {
-        		QbfSolverOptions options = new QbfSolverOptions();
+        	for (int i = 2; i <= n;) {
+        		QbfSolverOptions options = new QbfSolverOptions(i, b);
                 QbfSolver<? extends Condition> solver = QbfSolverFactory.getInstance().getSolver(filename, true, (QbfSolverOptions)options);
                 boolean succ = solver.existsWinningStrategy();
-                System.out.println("Solver: seq; Benchmark: " + benchmark + "; Bound: " + bound);
+                System.out.println("Solver: seq; Benchmark: " + benchmark + "; Bound: " + i);
                 if (succ)
                 	return;
         	}

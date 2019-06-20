@@ -43,7 +43,6 @@ public class AdamModelchecker {
 
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
         String formula = (args[4].isEmpty()) ? (String) pnwt.getExtension("formula") : args[4];
-//        String formula = line.getOptionValue(PARAMETER_FORMULA);
         RunFormula f = FlowLTLParser.parse(pnwt, formula);
 
         String output = args[1];
@@ -76,7 +75,6 @@ public class AdamModelchecker {
             mc.setVerificationAlgo(algo);
         }
         mc.setAbcParameters(abcParameter);
-//        mc.setMaximality(LTLModelcheckingParameters.getMaximality(line));
 
         ModelCheckingOutputData data = new ModelCheckingOutputData(output, false, false, false);
         mc.check(pnwt, f, data, stats);

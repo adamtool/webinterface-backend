@@ -53,6 +53,7 @@ public class AdamModelchecker {
         } else {
             stats = new ModelcheckingStatistics();
         }
+        stats.setPrintSysCircuitSizes(false);
 
         Abc.VerificationAlgo algo = null;
         String veri = args[2];

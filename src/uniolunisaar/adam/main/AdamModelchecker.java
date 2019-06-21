@@ -56,6 +56,12 @@ public class AdamModelchecker {
             stats = new ModelcheckingStatistics();
         }
         stats.setPrintSysCircuitSizes(false);
+        // add nb switches to file for the SDN paper        
+        if (!args[5].isEmpty()) {
+            try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[5] + "_sw"))) {
+                wr.append("nb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
+            }
+        }
 
         Abc.VerificationAlgo algo = null;
         String veri = args[2];
@@ -85,10 +91,6 @@ public class AdamModelchecker {
             stats.addResultToFile();
         }
 
-        // add nb switches to file for the SDN paper
-        try (BufferedWriter wr = new BufferedWriter(new FileWriter(output, true))) {
-            wr.append("\nnb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
-        }
     }
 
 }

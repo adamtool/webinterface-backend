@@ -1,5 +1,7 @@
 package uniolunisaar.adam.main;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
@@ -81,6 +83,11 @@ public class AdamModelchecker {
         mc.check(pnwt, f, data, stats);
         if (!args[5].isEmpty()) {
             stats.addResultToFile();
+        }
+
+        // add nb switches to file for the SDN paper
+        try (BufferedWriter wr = new BufferedWriter(new FileWriter(output, true))) {
+            wr.append("\nnb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
         }
     }
 

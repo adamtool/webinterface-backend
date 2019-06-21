@@ -63,6 +63,7 @@ public class AdamBounded {
             }
         });
         PrintStream originalStream = System.out;
+        long start = System.nanoTime();
         if (option.equals("tc")) {
         	for (int i = 2; i <= n; ++i) {
         		System.setOut(silentStream);
@@ -71,14 +72,18 @@ public class AdamBounded {
                 boolean succ = solver.existsWinningStrategy();
                 System.setOut(originalStream);
                 String result = succ ? "SAT" : "UNSAT";
-                System.out.println("Solver: tc; Benchmark/File: " + benchmark + "; Bound: " + i + " Result: " + result);
+                System.out.println("Solver: tc; Benchmark/File: " + benchmark + "; Bound: " + i + "; Result: " + result);
+                if (succ || i == n) {
+                	long end = System.nanoTime();
+                	System.out.println("Computation time: " + ((long) (end - start)/1000000000.0));
+                }
                 if (succ) {
                 	PGTools.savePG2Dot("strategy",solver.getStrategy(), false);
                 	System.out.println("Output strategy to strategy.dot");
                 	return;
                 }   	
         	}
-        
+        	return;
         } else {
         	for (int i = 2; i <= n; ++i) {
         		System.setOut(silentStream);
@@ -87,14 +92,17 @@ public class AdamBounded {
                 boolean succ = solver.existsWinningStrategy();
                 String result = succ ? "SAT" : "UNSAT";
                 System.setOut(originalStream);
-                System.out.println("Solver: seq; Benchmark/File: " + benchmark + "; Bound: " + i + " Result: " + result);
+                System.out.println("Solver: seq; Benchmark/File: " + benchmark + "; Bound: " + i + "; Result: " + result);
+                if (succ || i == n) {
+                	long end = System.nanoTime();
+                	System.out.println("Computation time: " + ((long) (end - start)/1000000000.0));
+                }
                 if (succ) {
                 	PGTools.savePG2Dot("strategy",solver.getStrategy(), false);
                 	System.out.println("Output strategy to strategy.dot");
                 	return;
                 }
         	}
-        
         }
     }
 	

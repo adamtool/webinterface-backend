@@ -25,13 +25,14 @@ import uniolunisaar.adam.util.PGTools;
 public class AdamBounded {
 	
 	private static int bb;
+	private static int n;
 	/**
 	 * 
 	 * @param args  
 	 * 				0 -> seq oder tc
-	 * 				1 -> bound n
-	 *      		2 -> benchmark name or .apt file
-	 *      		3 -> benchmark parameter or bound b
+	 * 				1 -> benchmark name or .apt file
+	 *      		2 -> benchmark parameter or bound n
+	 *      		3 -> bound n or bound b
 	 * 
 	 * @param args
 	 * @throws IOException
@@ -46,14 +47,12 @@ public class AdamBounded {
 		if ((args.length != 4) && (args.length != 3))
 			printHelpAndExit("Invalid number of arguments");
 		String option = args[0];
-		String nn = args[1];
-		String benchmark = args[2];
+		String benchmark = args[1];
 		
         if (!(option.equals("tc"))&&!(option.equals("seq"))) {
         	System.out.println("Invalid solver option, tc for true concurrent and seq for sequential solving available");
         	return;
         }
-        int n = Integer.parseInt(nn);
         
         String filename = checkValidBenchmarkAndParameter(args, benchmark);
         
@@ -80,7 +79,7 @@ public class AdamBounded {
                 if (succ) {
                 	PGTools.savePG2Dot("strategy",solver.getStrategy(), false);
                 	System.out.println("Output strategy to strategy.dot");
-                	return;
+                	System.exit(i);
                 }   	
         	}
         	return;
@@ -100,7 +99,7 @@ public class AdamBounded {
                 if (succ) {
                 	PGTools.savePG2Dot("strategy",solver.getStrategy(), false);
                 	System.out.println("Output strategy to strategy.dot");
-                	return;
+                	System.exit(i);
                 }
         	}
         }
@@ -111,11 +110,11 @@ public class AdamBounded {
 	 * @param errorMessage
 	 */
 	private static void printHelpAndExit(String errorMessage) {
-		String help = "Usage: ./adam_bounded  [tc|seq] [bound n] [benchmark name | intput file] [benchmark parameter | bound b]\n\n"
+		String help = "Usage: ./adam_bounded  [tc|seq] [benchmark name | input file] [benchmark parameter | bound n] [bound n | bound b]\n\n"
 					+ " arg 1:        tc for the true concurrent solver, seq for the sequential solver\n"
-					+ " arg 2:        the maximal bound the solver is executed with \n"
-					+ " arg 3:        the name of the benchmark: AS, CA, DR, PL, DW or an input .apt file\n"
-					+ " arg 4:        the parameter for the chosen benchmark or the bound b for the input file\n";
+					+ " arg 2:        the name of the benchmark: AS, CA, DR, PL, DW or an input .apt file\n"
+					+ " arg 3:        the parameter for the chosen benchmark or the bound n for the input file\n"
+					+ " arg 4:        the maximal bound the solver is executed with or the bound b for the input file\n";
 		System.out.println(errorMessage);
 		System.out.println("");
 		System.out.print(help);
@@ -131,35 +130,37 @@ public class AdamBounded {
 	private static String checkValidBenchmarkAndParameter(String[] args, String benchmark) {
 		String filename = null;
 		if (benchmark.endsWith(".apt")) {
+			n = Integer.parseInt(args[2]);
 			bb = Integer.parseInt(args[3]);
 			return benchmark;
 		}
-		int parameter = Integer.parseInt(args[3]);
+		int parameter = Integer.parseInt(args[2]);
+		n = Integer.parseInt(args[3]);
 		switch (benchmark) { 
 		case "AS":
 			if (! (2 <= parameter && parameter <= 3))
 				printHelpAndExit("AS only allows parameters 2 and 3");
 			bb = parameter;
-			return "benchmarks_ATVA/" + parameter + "_burglar.apt";
+			return "resources/" + parameter + "_burglar.apt";
 		case "CA":
 			if (! (2 <= parameter && parameter <= 5))
 				printHelpAndExit("CA only allows parameters 2 to 5");
 			bb = 1;
-			return "benchmarks_ATVA/" + parameter + "_IndependentNets.apt";
+			return "resources/" + parameter + "_IndependentNets.apt";
 		case "DR":
 			if (! (2 <= parameter && parameter <= 5))
 				printHelpAndExit("CA only allows parameters 2 to 5");
 			bb = 0;
-			return "benchmarks_ATVA/" + parameter + "_DR.apt";
+			return "resources/" + parameter + "_DR.apt";
 		case "PL":
 			if (! (1 <= parameter && parameter <= 7))
 				printHelpAndExit("PL only allows parameters 1 to 7");
 			bb = parameter;
-			return "benchmarks_ATVA/" + parameter + "_ProductionLine.apt";
+			return "resources/" + parameter + "_ProductionLine.apt";
 		case "DW":
 			if (! (1 <= parameter && parameter <= 11))
 				printHelpAndExit("DW only allows parameters 1 to 11");
-			return "benchmarks_ATVA/" + parameter + "_clerks.apt";
+			return "resources/" + parameter + "_clerks.apt";
 		default:
 			printHelpAndExit("Invalid benchmark name! Only AS, CA, DR, PL and DW available");
 			return null;

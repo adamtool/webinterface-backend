@@ -61,6 +61,7 @@ public class AdamBounded {
                 //Do nothing
             }
         });
+        try {
         PrintStream originalStream = System.out;
         long start = System.nanoTime();
         if (option.equals("tc")) {
@@ -103,6 +104,10 @@ public class AdamBounded {
                 }
         	}
         }
+    } catch (OutOfMemoryError E) {
+    	System.out.println("Java out of Memory!");
+    	System.exit(199);
+    	}
     }
 	
 	/**

@@ -56,7 +56,7 @@
         <antcall target="jar-standalone" />
 		<jar destfile="adam_core.jar">
 			<zipfileset includes="**/*.class" src="./adam_core-standalone.jar"
-                 excludes="**/main/**, **/bounded/**"/>
+                 excludes="**/main/**"/>
 			<zipfileset includes="**/*.stg" src="./adam_core-standalone.jar"/>
 		</jar>	
 	</target>

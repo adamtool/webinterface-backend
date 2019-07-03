@@ -86,6 +86,8 @@ public class AdamModelchecker {
             optis = AigerRenderer.Optimizations.NB_GATES;
         } else if (optimizations.equals("GATES_AND_INDICES")) {
             optis = AigerRenderer.Optimizations.NB_GATES_AND_INDICES;
+        } else if (optimizations.equals("GATES_AND_INDICES_EXTRA")) {
+            optis = AigerRenderer.Optimizations.NB_GATES_AND_INDICES_EXTRA;
         }
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(optis);

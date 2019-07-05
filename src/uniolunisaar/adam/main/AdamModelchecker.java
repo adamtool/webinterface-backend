@@ -16,6 +16,7 @@ import uniolunisaar.adam.logic.externaltools.modelchecking.Abc.VerificationAlgo;
 import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
 import uniolunisaar.adam.logic.transformers.pn2aiger.AigerRenderer;
+import uniolunisaar.adam.logic.transformers.pn2aiger.AigerRenderer.OptimizationsComplete;
 import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData;
@@ -30,8 +31,9 @@ public class AdamModelchecker {
      *
      * @param args 0 -> Input path to APT 1 -> Output path for data 2 ->
      * Verifier 3 -> ABC parameters 4 -> Formula (if "", then it's expected to
-     * be annotated within the APT input file) 5 -> optimized rendering 6 -> if
-     * != "" sizes would be written to the given path
+     * be annotated within the APT input file) 5 -> optimized rendering of the
+     * system 6 -> optimized rendering of the McHyper result 7 -> if != "" sizes
+     * would be written to the given path
      *
      * @throws ParseException
      * @throws IOException
@@ -41,31 +43,40 @@ public class AdamModelchecker {
      * @throws ExternalToolException
      */
     public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
-        String input = args[0];
+        int idInput = 0;
+        int idOutput = 1;
+        int idVeri = 2;
+        int idABC = 3;
+        int idFormula = 4;
+        int idOptSys = 5;
+        int idOptComp = 6;
+        int idOutSizes = 7;
+
+        String input = args[idInput];
         PetriNet net = Tools.getPetriNet(input);
 
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
-        String formula = (args[4].isEmpty()) ? (String) pnwt.getExtension("formula") : args[4];
+        String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
         RunFormula f = FlowLTLParser.parse(pnwt, formula);
 
-        String output = args[1];
+        String output = args[idOutput];
 
         ModelcheckingStatistics stats = null;
-        if (!args[6].isEmpty()) {
-            stats = new ModelcheckingStatistics(args[6]);
+        if (!args[idOutSizes].isEmpty()) {
+            stats = new ModelcheckingStatistics(args[idOutSizes]);
         } else {
             stats = new ModelcheckingStatistics();
         }
         stats.setPrintSysCircuitSizes(false);
         // add nb switches to file for the SDN paper        
-        if (!args[6].isEmpty()) {
-            try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[6] + "_sw"))) {
+        if (!args[idOutSizes].isEmpty()) {
+            try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes] + "_sw"))) {
                 wr.append("nb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
             }
         }
 
         Abc.VerificationAlgo algo = null;
-        String veri = args[2];
+        String veri = args[idVeri];
         if (veri.equals("IC3")) {
             algo = VerificationAlgo.IC3;
         } else if (veri.equals("INT")) {
@@ -78,21 +89,33 @@ public class AdamModelchecker {
             algo = VerificationAlgo.BMC3;
         }
 
-        String abcParameter = args[3];
+        String abcParameter = args[idABC];
 
-        String optimizations = args[5];
-        AigerRenderer.Optimizations optis = AigerRenderer.Optimizations.NONE;
+        String optimizations = args[idOptSys];
+        AigerRenderer.OptimizationsSystem optisSys = AigerRenderer.OptimizationsSystem.NONE;
         if (optimizations.equals("GATES")) {
-            optis = AigerRenderer.Optimizations.NB_GATES;
+            optisSys = AigerRenderer.OptimizationsSystem.NB_GATES;
         } else if (optimizations.equals("GATES-AND-INDICES")) {
-            optis = AigerRenderer.Optimizations.NB_GATES_AND_INDICES;
+            optisSys = AigerRenderer.OptimizationsSystem.NB_GATES_AND_INDICES;
         } else if (optimizations.equals("GATES-AND-INDICES-EXTRA")) {
-            optis = AigerRenderer.Optimizations.NB_GATES_AND_INDICES_EXTRA;
-        } else if (optimizations.equals("GATES-BY-FILE")) {
-            optis = AigerRenderer.Optimizations.NB_GATES_BY_FILE;
+            optisSys = AigerRenderer.OptimizationsSystem.NB_GATES_AND_INDICES_EXTRA;
         }
 
-        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(optis);
+        String allOpts = args[idOptComp];
+        OptimizationsComplete optsComp = OptimizationsComplete.NONE;
+        if (allOpts.equals("REGEX-GATES")) {
+            optsComp = OptimizationsComplete.NB_GATES_BY_REGEX;
+        } else if (allOpts.equals("REGEX-GATES-SQUE")) {
+            optsComp = OptimizationsComplete.NB_GATES_BY_REGEX_WITH_IDX_SQUEEZING;
+        } else if (allOpts.equals("DS-GATES")) {
+            optsComp = OptimizationsComplete.NB_GATES_BY_DS;
+        } else if (allOpts.equals("DS-GATES-SQUE")) {
+            optsComp = OptimizationsComplete.NB_GATES_BY_DS_WITH_IDX_SQUEEZING;
+        } else if (allOpts.equals("DS-GATES-SQUE-EXTRA")) {
+            optsComp = OptimizationsComplete.NB_GATES_BY_DS_WITH_IDX_SQUEEZING_AND_EXTRA_LIST;
+        }
+
+        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(optisSys, optsComp);
         if (algo != null) {
             mc.setVerificationAlgo(algo);
         }
@@ -100,7 +123,7 @@ public class AdamModelchecker {
 
         ModelCheckingOutputData data = new ModelCheckingOutputData(output, false, false, false);
         mc.check(pnwt, f, data, stats);
-        if (!args[6].isEmpty()) {
+        if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();
         }
 

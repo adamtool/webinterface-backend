@@ -84,10 +84,12 @@ public class AdamModelchecker {
         AigerRenderer.Optimizations optis = AigerRenderer.Optimizations.NONE;
         if (optimizations.equals("GATES")) {
             optis = AigerRenderer.Optimizations.NB_GATES;
-        } else if (optimizations.equals("GATES_AND_INDICES")) {
+        } else if (optimizations.equals("GATES-AND-INDICES")) {
             optis = AigerRenderer.Optimizations.NB_GATES_AND_INDICES;
-        } else if (optimizations.equals("GATES_AND_INDICES_EXTRA")) {
+        } else if (optimizations.equals("GATES-AND-INDICES-EXTRA")) {
             optis = AigerRenderer.Optimizations.NB_GATES_AND_INDICES_EXTRA;
+        } else if (optimizations.equals("GATES-BY-FILE")) {
+            optis = AigerRenderer.Optimizations.NB_GATES_BY_FILE;
         }
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(optis);

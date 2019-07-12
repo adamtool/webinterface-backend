@@ -61,13 +61,13 @@ public class AdamModelchecker {
 
         String output = args[idOutput];
 
-        ModelcheckingStatistics stats = null;
+        ModelcheckingStatistics stats;
         if (!args[idOutSizes].isEmpty()) {
             stats = new ModelcheckingStatistics(args[idOutSizes]);
         } else {
             stats = new ModelcheckingStatistics();
         }
-        stats.setPrintSysCircuitSizes(false);
+        stats.setPrintSysCircuitSizes(true);
         // add nb switches to file for the SDN paper        
         if (!args[idOutSizes].isEmpty()) {
             try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes] + "_sw"))) {
@@ -125,8 +125,12 @@ public class AdamModelchecker {
         mc.check(pnwt, f, data, stats);
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();
+            // add ABC times to the file
+            try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes], true))) {
+                wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
+                wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
+            }
         }
-
     }
 
 }

@@ -19,6 +19,7 @@ import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.util.PGTools;
 
 /**
+ * TODO properly handle Out of Memory/Heap Space erros
  *
  * @author Manuel Gieseking
  */

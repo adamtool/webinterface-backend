@@ -95,10 +95,16 @@ public class AdamModelchecker {
         AigerRenderer.OptimizationsSystem optisSys = AigerRenderer.OptimizationsSystem.NONE;
         if (optimizations.equals("GATES")) {
             optisSys = AigerRenderer.OptimizationsSystem.NB_GATES;
+        } else if (optimizations.equals("GATES-AND-EQCOM")) {
+            optisSys = AigerRenderer.OptimizationsSystem.NB_GATES_AND_EQCOM;
         } else if (optimizations.equals("GATES-AND-INDICES")) {
             optisSys = AigerRenderer.OptimizationsSystem.NB_GATES_AND_INDICES;
+        } else if (optimizations.equals("GATES-AND-INDICES-AND-EQCOM")) {
+            optisSys = AigerRenderer.OptimizationsSystem.NB_GATES_AND_INDICES_AND_EQCOM;
         } else if (optimizations.equals("GATES-AND-INDICES-EXTRA")) {
             optisSys = AigerRenderer.OptimizationsSystem.NB_GATES_AND_INDICES_EXTRA;
+        } else if (optimizations.equals("GATES-AND-INDICES-EXTRA-AND-EQCOM")) {
+            optisSys = AigerRenderer.OptimizationsSystem.NB_GATES_AND_INDICES_EXTRA_AND_EQCOM;
         }
 
         String allOpts = args[idOptComp];

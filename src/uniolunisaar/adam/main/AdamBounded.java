@@ -17,6 +17,7 @@ import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.util.PGTools;
+import uniolunisaar.adam.util.PNWTTools;
 
 /**
  * TODO properly handle Out of Memory/Heap Space erros
@@ -154,8 +155,8 @@ public class AdamBounded {
 			bb = 1;
 			return "resources/" + parameter + "_IndependentNets.apt";
 		case "DR":
-			if (! (2 <= parameter && parameter <= 5))
-				printHelpAndExit("CA only allows parameters 2 to 5");
+			if (! (2 <= parameter && parameter <= 6))
+				printHelpAndExit("DR only allows parameters 2 to 6");
 			bb = 0;
 			return "resources/" + parameter + "_DR.apt";
 		case "PL":
@@ -164,8 +165,8 @@ public class AdamBounded {
 			bb = parameter;
 			return "resources/" + parameter + "_ProductionLine.apt";
 		case "DW":
-			if (! (1 <= parameter && parameter <= 11))
-				printHelpAndExit("DW only allows parameters 1 to 11");
+			if (! (1 <= parameter && parameter <= 13))
+				printHelpAndExit("DW only allows parameters 1 to 13");
 			return "resources/" + parameter + "_clerks.apt";
 		default:
 			printHelpAndExit("Invalid benchmark name! Only AS, CA, DR, PL and DW available");

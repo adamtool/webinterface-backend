@@ -17,10 +17,9 @@ import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.util.PGTools;
-import uniolunisaar.adam.util.PNWTTools;
 
 /**
- * TODO properly handle Out of Memory/Heap Space erros
+ * TODO properly handle Out of Memory/Heap Space errors
  *
  * @author Manuel Gieseking
  */
@@ -135,7 +134,6 @@ public class AdamBounded {
 	 * @return
 	 */
 	private static String checkValidBenchmarkAndParameter(String[] args, String benchmark) {
-		String filename = null;
 		if (benchmark.endsWith(".apt")) {
 			n = Integer.parseInt(args[2]);
 			bb = Integer.parseInt(args[3]);

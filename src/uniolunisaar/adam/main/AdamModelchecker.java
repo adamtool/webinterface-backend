@@ -121,6 +121,7 @@ public class AdamModelchecker {
         String input = args[idInput];
         PetriNet net;
         if (args[idMCC].equals("mcc")) { // the mcc case
+            stats.setAppend(true);
             net = new PnmlPNParser().parseFile(input);
             Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
             ModelCheckerLTL mc = new ModelCheckerLTL(); // todo: currently no optimizations integrated
@@ -133,7 +134,7 @@ public class AdamModelchecker {
                 ILTLFormula f = entry.getValue();
 
                 ModelCheckingOutputData data = new ModelCheckingOutputData(output + "_" + id, false, false, false);
-                mc.check(new PetriNetWithTransits(net), f, data, stats); // todo currently only for the possibly attached fairness assumptions could safe some time to not create a PNWT
+                mc.check(new PetriNetWithTransits(net), f, data, stats); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
 
                 if (!args[idOutSizes].isEmpty()) {
                     stats.addResultToFile();

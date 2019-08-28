@@ -38,13 +38,25 @@ public class AdamModelchecker {
 
     /**
      *
-     * @param args 0 -> Input path to APT 1 -> Output path for data 2 ->
-     * Verifier 3 -> ABC parameters 4 -> Formula (if "", then it's expected to
-     * be annotated within the APT input file) 5 -> optimized rendering of the
-     * system 6 -> optimized rendering of the McHyper result 7 -> if != "" sizes
-     * would be written to the given path 8 -> iff mcc expecting a Petri net in
-     * pnml format and a path to a formula in the mcc format as input 9 -> iff
-     * "gen" then only creates the formula
+     * @param args<\p>
+     * 0 -> Input path to APT<\p>
+     * 1 -> Output path for data<\p>
+     * 2 -> Verifier<\p>
+     * 3 -> ABC parameters<\p>
+     * 4 -> Formula (if "", then it's expected to be annotated within the APT
+     * input file)<\p>
+     * 5 -> optimized rendering of the system<\p>
+     * 6 -> optimized rendering of the McHyper result<\p>
+     * 7 -> if != "" sizes would be written to the given path
+     * <\p>
+     * 8 -> if "gen" then only creates a textfile of the formulas for ADAM and
+     * LoLA and converts the net also into LoLA format <\p>
+     * if "mcc" expecting a Petri net in pnml format and a path to a formula in
+     * the mcc format as input, checks all formulas in this call<\p>
+     * if "mccOne" only checks one given LTL formula with one net<\p>
+     * else compares the SDN approach for several gate optimizations
+     *
+     *
      *
      * @throws ParseException
      * @throws IOException
@@ -54,7 +66,7 @@ public class AdamModelchecker {
      * @throws ExternalToolException
      */
     public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
-        if (args[9].equals("gen")) {
+        if (args[8].equals("gen")) {
             genExamples(args);
         } else {
             check(args);
@@ -181,9 +193,37 @@ public class AdamModelchecker {
         String input = args[idInput];
         if (args[idMCC].equals("mcc")) { // the mcc case
             checkMCCAllFormulasAtOnce(input, output, algo, abcParameter, stats, args, idFormula, idOutSizes);
+        } else if (args[idMCC].equals("mccOne")) {
+            checkMCCOneFormula(input, output, algo, abcParameter, stats, args, idFormula, idOutSizes);
         } else { // the optimization case
             checkSDNExamples(input, output, optisSys, optsComp, algo, abcParameter, stats, args, idFormula, idOutSizes);
         }
+    }
+
+    private static void checkMCCOneFormula(String input, String output,
+            Abc.VerificationAlgo algo, String abcParameter, ModelcheckingStatistics stats,
+            String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
+        PetriNet net = new PnmlPNParser().parseFile(input);
+        ModelCheckerLTL mc = new ModelCheckerLTL(); // todo: currently no optimizations integrated
+        if (algo != null) {
+            mc.setVerificationAlgo(algo);
+        }
+        mc.setAbcParameters(abcParameter);
+
+        ModelCheckingOutputData data = new ModelCheckingOutputData(output + "_out", false, false, false);
+        RunFormula f = FlowLTLParser.parse(net, args[idFormula]);
+        PetriNetWithTransits pnwt = new PetriNetWithTransits(net);// todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
+        mc.check(pnwt, (ILTLFormula) f, data, stats);
+
+        if (!args[idOutSizes].isEmpty()) {
+            stats.addResultToFile();
+            // add ABC times to the file
+            try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes], true))) {
+                wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
+                wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
+            }
+        }
+
     }
 
     private static void checkMCCAllFormulasAtOnce(String input, String output,

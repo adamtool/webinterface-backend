@@ -9,6 +9,8 @@ import org.xml.sax.SAXException;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.parser.impl.PnmlPNParser;
+import uniol.apt.io.renderer.RenderException;
+import uniol.apt.io.renderer.impl.LoLAPNRenderer;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
 import uniolunisaar.adam.ds.modelchecking.ModelcheckingStatistics;
@@ -41,6 +43,64 @@ public class AdamModelchecker {
      * be annotated within the APT input file) 5 -> optimized rendering of the
      * system 6 -> optimized rendering of the McHyper result 7 -> if != "" sizes
      * would be written to the given path 8 -> iff mcc expecting a Petri net in
+     * pnml format and a path to a formula in the mcc format as input 9 -> iff
+     * "gen" then only creates the formula
+     *
+     * @throws ParseException
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws NotConvertableException
+     * @throws ProcessNotStartedException
+     * @throws ExternalToolException
+     */
+    public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
+        if (args[9].equals("gen")) {
+            genExamples(args);
+        } else {
+            check(args);
+        }
+    }
+
+    /**
+     * args[0] -> should contain the input Petri net in pnml format <\p>
+     * args[1] -> should contain the output path <\p>
+     * args[4] -> should contain the input xml file with the formulas in the mcc
+     * format <\p>
+     *
+     * @param args
+     * @throws uniol.apt.io.parser.ParseException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     * @throws javax.xml.parsers.ParserConfigurationException
+     * @throws uniol.apt.io.renderer.RenderException
+     * @throws uniolunisaar.adam.exceptions.logics.NotConvertableException
+     */
+    public static void genExamples(String[] args) throws ParseException, IOException, SAXException, ParserConfigurationException, RenderException, NotConvertableException {
+        // ADAM part
+        PetriNet net = new PnmlPNParser().parseFile(args[0]);
+        Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[4], net);
+        StringBuilder sb = new StringBuilder();
+        StringBuilder sbLolA = new StringBuilder();
+        for (Map.Entry<String, ILTLFormula> entry : formula.entrySet()) {
+            String key = entry.getKey();
+            ILTLFormula value = entry.getValue();
+            sb.append(key).append(";").append(value.toString()).append("\n");
+            sbLolA.append(key).append(";").append("ALLPATH ").append(value.toLoLA()).append("\n");
+        }
+        Tools.saveFile(args[1] + "_formulas_adam.txt", sb.toString());
+        Tools.saveFile(args[1] + "_formulas_lola.txt", sbLolA.toString());
+        // LoLa part
+        String lolaNet = new LoLAPNRenderer().render(net);
+        Tools.saveFile(args[1] + ".lola", lolaNet);
+    }
+
+    /**
+     *
+     * @param args 0 -> Input path to APT 1 -> Output path for data 2 ->
+     * Verifier 3 -> ABC parameters 4 -> Formula (if "", then it's expected to
+     * be annotated within the APT input file) 5 -> optimized rendering of the
+     * system 6 -> optimized rendering of the McHyper result 7 -> if != "" sizes
+     * would be written to the given path 8 -> iff mcc expecting a Petri net in
      * pnml format and a path to a formula in the mcc format as input
      *
      * @throws ParseException
@@ -50,7 +110,7 @@ public class AdamModelchecker {
      * @throws ProcessNotStartedException
      * @throws ExternalToolException
      */
-    public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException {
+    public static void check(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException {
         int idInput = 0;
         int idOutput = 1;
         int idVeri = 2;
@@ -119,54 +179,30 @@ public class AdamModelchecker {
         stats.setPrintSysCircuitSizes(true);
 
         String input = args[idInput];
-        PetriNet net;
         if (args[idMCC].equals("mcc")) { // the mcc case
-            stats.setAppend(true);
-            net = new PnmlPNParser().parseFile(input);
-            Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
-            ModelCheckerLTL mc = new ModelCheckerLTL(); // todo: currently no optimizations integrated
-            if (algo != null) {
-                mc.setVerificationAlgo(algo);
-            }
-            mc.setAbcParameters(abcParameter);
-            for (Map.Entry<String, ILTLFormula> entry : formula.entrySet()) {
-                String id = entry.getKey();
-                ILTLFormula f = entry.getValue();
-
-                ModelCheckingOutputData data = new ModelCheckingOutputData(output + "_" + id, false, false, false);
-                mc.check(new PetriNetWithTransits(net), f, data, stats); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
-
-                if (!args[idOutSizes].isEmpty()) {
-                    stats.addResultToFile();
-                    // add ABC times to the file
-                    try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes], true))) {
-                        wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
-                        wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
-                    }
-                }
-            }
+            checkMCCAllFormulasAtOnce(input, output, algo, abcParameter, stats, args, idFormula, idOutSizes);
         } else { // the optimization case
-            net = Tools.getPetriNet(input);
-            PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
+            checkSDNExamples(input, output, optisSys, optsComp, algo, abcParameter, stats, args, idFormula, idOutSizes);
+        }
+    }
 
-            String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
-            RunFormula f = FlowLTLParser.parse(pnwt, formula);
+    private static void checkMCCAllFormulasAtOnce(String input, String output,
+            Abc.VerificationAlgo algo, String abcParameter, ModelcheckingStatistics stats,
+            String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
+        stats.setAppend(true);
+        PetriNet net = new PnmlPNParser().parseFile(input);
+        Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
+        ModelCheckerLTL mc = new ModelCheckerLTL(); // todo: currently no optimizations integrated
+        if (algo != null) {
+            mc.setVerificationAlgo(algo);
+        }
+        mc.setAbcParameters(abcParameter);
+        for (Map.Entry<String, ILTLFormula> entry : formula.entrySet()) {
+            String id = entry.getKey();
+            ILTLFormula f = entry.getValue();
 
-            // add nb switches to file for the SDN paper        
-            if (!args[idOutSizes].isEmpty()) {
-                try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes] + "_sw"))) {
-                    wr.append("nb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
-                }
-            }
-
-            ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(optisSys, optsComp);
-            if (algo != null) {
-                mc.setVerificationAlgo(algo);
-            }
-            mc.setAbcParameters(abcParameter);
-
-            ModelCheckingOutputData data = new ModelCheckingOutputData(output, false, false, false);
-            mc.check(pnwt, f, data, stats);
+            ModelCheckingOutputData data = new ModelCheckingOutputData(output + "_" + id, false, false, false);
+            mc.check(new PetriNetWithTransits(net), f, data, stats); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
 
             if (!args[idOutSizes].isEmpty()) {
                 stats.addResultToFile();
@@ -175,6 +211,41 @@ public class AdamModelchecker {
                     wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
                     wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
                 }
+            }
+        }
+    }
+
+    private static void checkSDNExamples(String input, String output,
+            AigerRenderer.OptimizationsSystem optisSys, OptimizationsComplete optsComp, Abc.VerificationAlgo algo, String abcParameter, ModelcheckingStatistics stats,
+            String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+        PetriNet net = Tools.getPetriNet(input);
+        PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
+
+        String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
+        RunFormula f = FlowLTLParser.parse(pnwt, formula);
+
+        // add nb switches to file for the SDN paper        
+        if (!args[idOutSizes].isEmpty()) {
+            try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes] + "_sw"))) {
+                wr.append("nb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
+            }
+        }
+
+        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(optisSys, optsComp);
+        if (algo != null) {
+            mc.setVerificationAlgo(algo);
+        }
+        mc.setAbcParameters(abcParameter);
+
+        ModelCheckingOutputData data = new ModelCheckingOutputData(output, false, false, false);
+        mc.check(pnwt, f, data, stats);
+
+        if (!args[idOutSizes].isEmpty()) {
+            stats.addResultToFile();
+            // add ABC times to the file
+            try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes], true))) {
+                wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
+                wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
             }
         }
     }

@@ -103,7 +103,7 @@ public class AdamModelchecker {
         Tools.saveFile(args[1] + "_formulas_lola.txt", sbLolA.toString());
         // LoLa part
         String lolaNet = new LoLAPNRenderer().render(net);
-        Tools.saveFile(args[1] + ".lola", lolaNet);
+        Tools.saveFile(args[1].substring(0, args[1].lastIndexOf("/") + 1) + "model.lola", lolaNet);
     }
 
     /**

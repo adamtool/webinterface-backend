@@ -213,7 +213,7 @@ public class AdamModelchecker {
         ModelCheckingOutputData data = new ModelCheckingOutputData(output + "_out", false, false, false);
         RunFormula f = FlowLTLParser.parse(net, args[idFormula]);
         PetriNetWithTransits pnwt = new PetriNetWithTransits(net);// todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
-        mc.check(pnwt, (ILTLFormula) f, data, stats);
+        mc.check(pnwt, f.toLTLFormula(), data, stats);
 
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();

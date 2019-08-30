@@ -13,7 +13,8 @@ import uniol.apt.io.renderer.RenderException;
 import uniol.apt.io.renderer.impl.LoLAPNRenderer;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
-import uniolunisaar.adam.ds.modelchecking.ModelcheckingStatistics;
+import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitFlowLTLMCOutputData;
+import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitFlowLTLMCStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.ExternalToolException;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
@@ -28,7 +29,9 @@ import uniolunisaar.adam.logic.transformers.pn2aiger.AigerRenderer;
 import uniolunisaar.adam.logic.transformers.pn2aiger.AigerRenderer.OptimizationsComplete;
 import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PNWTTools;
-import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData;
+import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitLTLMCOutputData;
+import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitLTLMCSettings;
 
 /**
  *
@@ -182,11 +185,11 @@ public class AdamModelchecker {
 
         String output = args[idOutput];
 
-        ModelcheckingStatistics stats;
+        AdamCircuitFlowLTLMCStatistics stats;
         if (!args[idOutSizes].isEmpty()) {
-            stats = new ModelcheckingStatistics(args[idOutSizes]);
+            stats = new AdamCircuitFlowLTLMCStatistics(args[idOutSizes]);
         } else {
-            stats = new ModelcheckingStatistics();
+            stats = new AdamCircuitFlowLTLMCStatistics();
         }
         stats.setPrintSysCircuitSizes(true);
 
@@ -201,19 +204,24 @@ public class AdamModelchecker {
     }
 
     private static void checkMCCOneFormula(String input, String output,
-            Abc.VerificationAlgo algo, String abcParameter, ModelcheckingStatistics stats,
+            Abc.VerificationAlgo algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
             String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = new PnmlPNParser().parseFile(input);
-        ModelCheckerLTL mc = new ModelCheckerLTL(); // todo: currently no optimizations integrated
-        if (algo != null) {
-            mc.setVerificationAlgo(algo);
-        }
-        mc.setAbcParameters(abcParameter);
 
-        ModelCheckingOutputData data = new ModelCheckingOutputData(output + "_out", false, false, false);
+        AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
+        if (algo != null) {
+            settings.setVerificationAlgo(algo);
+        }
+        settings.setAbcParameters(abcParameter);
+
+        AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_out", false, false);
+        settings.setOutputData(data);
+        settings.setStatistics(stats);
+
+        ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
         RunFormula f = FlowLTLParser.parse(net, args[idFormula]);
         PetriNetWithTransits pnwt = new PetriNetWithTransits(net);// todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
-        mc.check(pnwt, f.toLTLFormula(), data, stats);
+        mc.check(pnwt, f.toLTLFormula());
 
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();
@@ -227,22 +235,29 @@ public class AdamModelchecker {
     }
 
     private static void checkMCCAllFormulasAtOnce(String input, String output,
-            Abc.VerificationAlgo algo, String abcParameter, ModelcheckingStatistics stats,
+            Abc.VerificationAlgo algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
             String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         stats.setAppend(true);
         PetriNet net = new PnmlPNParser().parseFile(input);
         Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
-        ModelCheckerLTL mc = new ModelCheckerLTL(); // todo: currently no optimizations integrated
+
+        AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
         if (algo != null) {
-            mc.setVerificationAlgo(algo);
+            settings.setVerificationAlgo(algo);
         }
-        mc.setAbcParameters(abcParameter);
+        settings.setAbcParameters(abcParameter);
+
+        settings.setStatistics(stats);
+
+        ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
+
         for (Map.Entry<String, ILTLFormula> entry : formula.entrySet()) {
             String id = entry.getKey();
             ILTLFormula f = entry.getValue();
 
-            ModelCheckingOutputData data = new ModelCheckingOutputData(output + "_" + id, false, false, false);
-            mc.check(new PetriNetWithTransits(net), f, data, stats); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
+            AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + id, false, false);
+            settings.setOutputData(data);
+            mc.check(new PetriNetWithTransits(net), f); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
 
             if (!args[idOutSizes].isEmpty()) {
                 stats.addResultToFile();
@@ -256,7 +271,7 @@ public class AdamModelchecker {
     }
 
     private static void checkSDNExamples(String input, String output,
-            AigerRenderer.OptimizationsSystem optisSys, OptimizationsComplete optsComp, Abc.VerificationAlgo algo, String abcParameter, ModelcheckingStatistics stats,
+            AigerRenderer.OptimizationsSystem optisSys, OptimizationsComplete optsComp, Abc.VerificationAlgo algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
             String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = Tools.getPetriNet(input);
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
@@ -270,15 +285,18 @@ public class AdamModelchecker {
                 wr.append("nb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
             }
         }
-
-        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(optisSys, optsComp);
+        AdamCircuitFlowLTLMCSettings settings = new AdamCircuitFlowLTLMCSettings(optisSys, optsComp);
         if (algo != null) {
-            mc.setVerificationAlgo(algo);
+            settings.setVerificationAlgo(algo);
         }
-        mc.setAbcParameters(abcParameter);
+        settings.setAbcParameters(abcParameter);
 
-        ModelCheckingOutputData data = new ModelCheckingOutputData(output, false, false, false);
-        mc.check(pnwt, f, data, stats);
+        AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(output, false, false, false);
+        settings.setOutputData(data);
+        settings.setStatistics(stats);
+
+        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
+        mc.check(pnwt, f);
 
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();

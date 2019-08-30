@@ -6,7 +6,8 @@ import java.io.IOException;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
-import uniolunisaar.adam.ds.modelchecking.ModelcheckingStatistics;
+import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitFlowLTLMCOutputData;
+import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitFlowLTLMCStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.ExternalToolException;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
@@ -17,7 +18,7 @@ import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
 import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PNWTTools;
-import uniolunisaar.adam.util.logics.transformers.logics.ModelCheckingOutputData;
+import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
 
 /**
  *
@@ -49,11 +50,11 @@ public class AdamModelcheckerATVA2019 {
 
         String output = args[1];
 
-        ModelcheckingStatistics stats = null;
+        AdamCircuitFlowLTLMCStatistics stats = null;
         if (!args[5].isEmpty()) {
-            stats = new ModelcheckingStatistics(args[5]);
+            stats = new AdamCircuitFlowLTLMCStatistics(args[5]);
         } else {
-            stats = new ModelcheckingStatistics();
+            stats = new AdamCircuitFlowLTLMCStatistics();
         }
         stats.setPrintSysCircuitSizes(false);
         // add nb switches to file for the SDN paper        
@@ -79,18 +80,20 @@ public class AdamModelcheckerATVA2019 {
 
         String abcParameter = args[3];
 
-        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL();
+        AdamCircuitFlowLTLMCSettings settings = new AdamCircuitFlowLTLMCSettings();
         if (algo != null) {
-            mc.setVerificationAlgo(algo);
+            settings.setVerificationAlgo(algo);
         }
-        mc.setAbcParameters(abcParameter);
+        settings.setAbcParameters(abcParameter);
 
-        ModelCheckingOutputData data = new ModelCheckingOutputData(output, false, false, false);
-        mc.check(pnwt, f, data, stats);
+        AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(output, false, false, false);
+        settings.setOutputData(data);
+        settings.setStatistics(stats);
+        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
+        mc.check(pnwt, f);
         if (!args[5].isEmpty()) {
             stats.addResultToFile();
         }
-
     }
 
 }

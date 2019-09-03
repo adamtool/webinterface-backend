@@ -3,6 +3,7 @@ package uniolunisaar.adam.main;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -33,6 +34,7 @@ import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
 import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitLTLMCStatistics;
 
 /**
  *
@@ -138,10 +140,11 @@ public class AdamModelchecker {
         int idMCC = 8;
 
         // For both approaches 
-        String[] veris = args[idVeri].split("|");
+        String[] veris = args[idVeri].split("\\|");
         Abc.VerificationAlgo[] algos = new Abc.VerificationAlgo[veris.length];
         for (int i = 0; i < veris.length; i++) {
             String veri = veris[i];
+            System.out.println(veri);
             Abc.VerificationAlgo algo = null;
             if (veri.equals("IC3")) {
                 algo = VerificationAlgo.IC3;
@@ -191,26 +194,39 @@ public class AdamModelchecker {
 
         String output = args[idOutput];
 
-        AdamCircuitFlowLTLMCStatistics stats;
-        if (!args[idOutSizes].isEmpty()) {
-            stats = new AdamCircuitFlowLTLMCStatistics(args[idOutSizes]);
-        } else {
-            stats = new AdamCircuitFlowLTLMCStatistics();
-        }
-        stats.setPrintSysCircuitSizes(true);
-
         String input = args[idInput];
         if (args[idMCC].equals("mcc")) { // the mcc case
+            AdamCircuitLTLMCStatistics stats;
+            if (!args[idOutSizes].isEmpty()) {
+                stats = new AdamCircuitLTLMCStatistics(args[idOutSizes]);
+            } else {
+                stats = new AdamCircuitLTLMCStatistics();
+            }
+            stats.setPrintSysCircuitSizes(true);
             checkMCCAllFormulasAtOnce(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes);
         } else if (args[idMCC].equals("mccOne")) {
+            AdamCircuitLTLMCStatistics stats;
+            if (!args[idOutSizes].isEmpty()) {
+                stats = new AdamCircuitLTLMCStatistics(args[idOutSizes]);
+            } else {
+                stats = new AdamCircuitLTLMCStatistics();
+            }
+            stats.setPrintSysCircuitSizes(true);
             checkMCCOneFormula(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes);
         } else { // the optimization case
+            AdamCircuitFlowLTLMCStatistics stats;
+            if (!args[idOutSizes].isEmpty()) {
+                stats = new AdamCircuitFlowLTLMCStatistics(args[idOutSizes]);
+            } else {
+                stats = new AdamCircuitFlowLTLMCStatistics();
+            }
+            stats.setPrintSysCircuitSizes(true);
             checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes);
         }
     }
 
     private static void checkMCCOneFormula(String input, String output,
-            Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
+            Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitLTLMCStatistics stats,
             String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = new PnmlPNParser().parseFile(input);
 
@@ -242,7 +258,7 @@ public class AdamModelchecker {
     }
 
     private static void checkMCCAllFormulasAtOnce(String input, String output,
-            Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
+            Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitLTLMCStatistics stats,
             String[] args, int idFormula, int idOutSizes) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         stats.setAppend(true);
         PetriNet net = new PnmlPNParser().parseFile(input);

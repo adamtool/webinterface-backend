@@ -3,7 +3,6 @@ package uniolunisaar.adam.main;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -34,7 +33,10 @@ import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
 import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.LoLASettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings.Approach;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitLTLMCStatistics;
+import uniolunisaar.adam.util.logics.LogicsTools;
 
 /**
  *
@@ -60,7 +62,8 @@ public class AdamModelchecker {
      * if "mcc" expecting a Petri net in pnml format and a path to a formula in
      * the mcc format as input, checks all formulas in this call<\p>
      * if "mccOne" only checks one given LTL formula with one net<\p>
-     * else compares the SDN approach for several gate optimizations
+     * else compares the SDN approach for several gate optimizations<\p>
+     * if "lola" tries to check the SDN examples with lola
      *
      *
      *
@@ -74,6 +77,8 @@ public class AdamModelchecker {
     public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
         if (args[8].equals("gen")) {
             genExamples(args);
+        } else if (args[8].equals("lola")) {
+            checkSDNLoLA(args);
         } else {
             check(args);
         }
@@ -231,6 +236,9 @@ public class AdamModelchecker {
         PetriNet net = new PnmlPNParser().parseFile(input);
 
         AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
+        settings.setMaximality(AdamCircuitLTLMCSettings.Maximality.MAX_INTERLEAVING_IN_CIRCUIT);
+        settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
+        settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
         if (algo != null) {
             settings.setVerificationAlgo(algo);
         }
@@ -265,6 +273,9 @@ public class AdamModelchecker {
         Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
 
         AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
+        settings.setMaximality(AdamCircuitLTLMCSettings.Maximality.MAX_INTERLEAVING_IN_CIRCUIT);
+        settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
+        settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
         if (algo != null) {
             settings.setVerificationAlgo(algo);
         }
@@ -309,6 +320,11 @@ public class AdamModelchecker {
             }
         }
         AdamCircuitFlowLTLMCSettings settings = new AdamCircuitFlowLTLMCSettings(optisSys, optsComp);
+        settings.setMaximality(AdamCircuitLTLMCSettings.Maximality.MAX_INTERLEAVING_IN_CIRCUIT);
+        settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
+        settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
+        settings.setInitFirst(true);
+        settings.setApproach(AdamCircuitFlowLTLMCSettings.Approach.SEQUENTIAL_INHIBITOR);
         if (algo != null) {
             settings.setVerificationAlgo(algo);
         }
@@ -329,6 +345,24 @@ public class AdamModelchecker {
                 wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
             }
         }
+    }
+
+    private static void checkSDNLoLA(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+        String input = args[0];
+        String outputPath = args[1];
+        int idFormula = 4;
+        PetriNet net = Tools.getPetriNet(input);
+        PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
+
+        String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
+        RunFormula f = FlowLTLParser.parse(pnwt, formula);
+
+        LoLASettings settings = new LoLASettings();
+        settings.setApproach(Approach.SEQUENTIAL);
+        settings.setOutputPath(outputPath);
+
+        ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
+        mc.check(pnwt, f);
     }
 
 }

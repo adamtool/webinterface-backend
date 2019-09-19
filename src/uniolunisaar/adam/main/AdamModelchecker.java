@@ -362,7 +362,10 @@ public class AdamModelchecker {
         settings.setOutputPath(outputPath);
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
-        mc.check(pnwt, f);
+        ModelCheckingResult result = mc.check(pnwt, f);
+        try (BufferedWriter wr = new BufferedWriter(new FileWriter(outputPath + "_result.txt"))) {
+            wr.append("Result: ").append(result.getSatisfied().toString());
+        }
     }
 
 }

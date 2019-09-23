@@ -27,6 +27,7 @@ import uniolunisaar.adam.generators.pnwt.SmartFactory;
 import uniolunisaar.adam.generators.pnwt.UpdatingNetwork;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitLTLMCOutputData;
+import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
 import uniolunisaar.adam.logic.transformers.modelchecking.circuit.pnwt2pn.PnwtAndFlowLTLtoPNSequentialInhibitor;
 
 /**
@@ -170,7 +171,7 @@ public class AdamModelChecker {
         if (parallel) {
             return FlowLTLTransformerParallel.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
-            return FlowLTLTransformerSequential.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, true);
+            return FlowLTLTransformerSequential.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, new AdamCircuitFlowLTLMCSettings());
         }
     }
 

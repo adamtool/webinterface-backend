@@ -64,8 +64,8 @@ public class AdamModelchecker {
      * if "mcc" expecting a Petri net in pnml format and a path to a formula in
      * the mcc format as input, checks all formulas in this call<\p>
      * if "mccOne" only checks one given LTL formula with one net<\p>
-     * else compares the SDN approach for several gate optimizations<\p>
-     * if "lola" tries to check the SDN examples with lola
+     * if "lola" tries to check the SDN examples with lola else compares the SDN
+     * approach for several gate optimizations<\p>
      *
      *
      *
@@ -303,12 +303,13 @@ public class AdamModelchecker {
 
             AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + id, false, false);
             settings.setOutputData(data);
-            mc.check(new PetriNetWithTransits(net), f); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
+            ModelCheckingResult result = mc.check(new PetriNetWithTransits(net), f); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
 
             if (!args[idOutSizes].isEmpty()) {
                 stats.addResultToFile();
                 // add ABC times to the file
                 try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes], true))) {
+                    wr.append("\nAlgo:").append(result.getAlgo().name());
                     wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
                     wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
                 }
@@ -347,12 +348,13 @@ public class AdamModelchecker {
         settings.setStatistics(stats);
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
-        mc.check(pnwt, f);
+        ModelCheckingResult result = mc.check(pnwt, f);
 
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();
             // add ABC times to the file
             try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes], true))) {
+                wr.append("\nAlgo:").append(result.getAlgo().name());
                 wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
                 wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
             }

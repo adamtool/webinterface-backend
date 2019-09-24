@@ -59,7 +59,7 @@ public class AdamModelchecker {
      * approaches (GFO, GFANDNpi, ANDGFNpi) 9 -> if != "" sizes would be written
      * to the given path
      * <\p>
-     * 10 -> if "gen" then only creates a textfile of the formulas for ADAM and
+     * 10 -> if "gen" then only creates a text file of the formulas for ADAM and
      * LoLA and converts the net also into LoLA format <\p>
      * if "mcc" expecting a Petri net in pnml format and a path to a formula in
      * the mcc format as input, checks all formulas in this call<\p>

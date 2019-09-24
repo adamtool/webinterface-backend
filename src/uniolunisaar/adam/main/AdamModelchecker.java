@@ -238,7 +238,7 @@ public class AdamModelchecker {
                 stats = new AdamCircuitFlowLTLMCStatistics();
             }
             stats.setPrintSysCircuitSizes(true);
-            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max);
+            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max, args[idStuckInSubnet]);
         }
     }
 
@@ -319,7 +319,7 @@ public class AdamModelchecker {
 
     private static void checkSDNExamples(String input, String output,
             AigerRenderer.OptimizationsSystem optisSys, OptimizationsComplete optsComp, Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
-            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, String stuckInSubnet) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = Tools.getPetriNet(input);
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
 
@@ -346,6 +346,17 @@ public class AdamModelchecker {
         AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(output, false, false, false);
         settings.setOutputData(data);
         settings.setStatistics(stats);
+
+        if (stuckInSubnet.equals("GFO")) {
+            settings.setNotStuckingInSubnetByActOPlace(true);
+            settings.setNotStuckingByActSubPlaceSeveralGFs(false);
+        } else if (stuckInSubnet.equals("ANDGFNpi")) {
+            settings.setNotStuckingInSubnetByActOPlace(false);
+            settings.setNotStuckingByActSubPlaceSeveralGFs(true);
+        } else if (stuckInSubnet.equals("GFANDNpi")) {
+            settings.setNotStuckingInSubnetByActOPlace(false);
+            settings.setNotStuckingByActSubPlaceSeveralGFs(false);
+        }
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
         ModelCheckingResult result = mc.check(pnwt, f);

@@ -55,11 +55,12 @@ public class AdamModelchecker {
      * input file)<\p>
      * 5 -> optimized rendering of the system<\p>
      * 6 -> optimized rendering of the McHyper result<\p>
-     * 7 -> maximality (NONE, inCircuit, inFormula) 8 -> stucking in subnet
-     * approaches (GFO, GFANDNpi, ANDGFNpi) 9 -> if != "" sizes would be written
-     * to the given path
-     * <\p>
-     * 10 -> if "gen" then only creates a text file of the formulas for ADAM and
+     * 7 -> maximality (NONE, inCircuit, inFormula)<\p>
+     * 8 -> stucking in subnet approaches (GFO, GFANDNpi, ANDGFNpi)<\p>
+     * 9 -> if != "" sizes would be written to the given path <\p>
+     * 10 -> if == "logCod" codes the transition logarithmically in the circuit
+     * (only has an effect for maximality inCircuit)<\p>
+     * 11 -> if "gen" then only creates a text file of the formulas for ADAM and
      * LoLA and converts the net also into LoLA format <\p>
      * if "mcc" expecting a Petri net in pnml format and a path to a formula in
      * the mcc format as input, checks all formulas in this call<\p>
@@ -77,9 +78,9 @@ public class AdamModelchecker {
      * @throws ExternalToolException
      */
     public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
-        if (args[10].equals("gen")) {
+        if (args[11].equals("gen")) {
             genExamples(args);
-        } else if (args[10].equals("lola")) {
+        } else if (args[11].equals("lola")) {
             checkSDNLoLA(args);
         } else {
             check(args);
@@ -147,7 +148,8 @@ public class AdamModelchecker {
         int idMax = 7;
         int idStuckInSubnet = 8;
         int idOutSizes = 9;
-        int idMCC = 10;
+        int idLogCod = 10;
+        int idMCC = 11;
 
         // For both approaches 
         String[] veris = args[idVeri].split("\\|");
@@ -211,6 +213,11 @@ public class AdamModelchecker {
             max = AdamCircuitLTLMCSettings.Maximality.MAX_INTERLEAVING;
         }
 
+        boolean logCod = false;
+        if (args[idLogCod].equals("logCod")) {
+            logCod = true;
+        }
+
         String input = args[idInput];
         if (args[idMCC].equals("mcc")) { // the mcc case
             AdamCircuitLTLMCStatistics stats;
@@ -220,7 +227,7 @@ public class AdamModelchecker {
                 stats = new AdamCircuitLTLMCStatistics();
             }
             stats.setPrintSysCircuitSizes(true);
-            checkMCCAllFormulasAtOnce(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max);
+            checkMCCAllFormulasAtOnce(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max, logCod);
         } else if (args[idMCC].equals("mccOne")) {
             AdamCircuitLTLMCStatistics stats;
             if (!args[idOutSizes].isEmpty()) {
@@ -229,7 +236,7 @@ public class AdamModelchecker {
                 stats = new AdamCircuitLTLMCStatistics();
             }
             stats.setPrintSysCircuitSizes(true);
-            checkMCCOneFormula(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max);
+            checkMCCOneFormula(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max, logCod);
         } else { // the optimization case
             AdamCircuitFlowLTLMCStatistics stats;
             if (!args[idOutSizes].isEmpty()) {
@@ -238,13 +245,13 @@ public class AdamModelchecker {
                 stats = new AdamCircuitFlowLTLMCStatistics();
             }
             stats.setPrintSysCircuitSizes(true);
-            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max, args[idStuckInSubnet]);
+            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max, args[idStuckInSubnet], logCod);
         }
     }
 
     private static void checkMCCOneFormula(String input, String output,
             Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitLTLMCStatistics stats,
-            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
+            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, boolean logCod) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = new PnmlPNParser().parseFile(input);
 
         AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
@@ -259,6 +266,8 @@ public class AdamModelchecker {
         AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_out", false, false);
         settings.setOutputData(data);
         settings.setStatistics(stats);
+
+        settings.setCodeInputTransitionsBinary(logCod);
 
         ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
         RunFormula f = FlowLTLParser.parse(net, args[idFormula]);
@@ -279,7 +288,7 @@ public class AdamModelchecker {
 
     private static void checkMCCAllFormulasAtOnce(String input, String output,
             Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitLTLMCStatistics stats,
-            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
+            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, boolean logCod) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         stats.setAppend(true);
         PetriNet net = new PnmlPNParser().parseFile(input);
         Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
@@ -294,6 +303,8 @@ public class AdamModelchecker {
         settings.setAbcParameters(abcParameter);
 
         settings.setStatistics(stats);
+
+        settings.setCodeInputTransitionsBinary(logCod);
 
         ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
 
@@ -319,7 +330,7 @@ public class AdamModelchecker {
 
     private static void checkSDNExamples(String input, String output,
             AigerRenderer.OptimizationsSystem optisSys, OptimizationsComplete optsComp, Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
-            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, String stuckInSubnet) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, String stuckInSubnet, boolean logCod) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = Tools.getPetriNet(input);
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
 
@@ -357,6 +368,8 @@ public class AdamModelchecker {
             settings.setNotStuckingInSubnetByActOPlace(false);
             settings.setNotStuckingByActSubPlaceSeveralGFs(false);
         }
+
+        settings.setCodeInputTransitionsBinary(logCod);
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
         ModelCheckingResult result = mc.check(pnwt, f);

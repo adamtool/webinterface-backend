@@ -12,22 +12,20 @@ import uniolunisaar.adam.util.logics.FormulaCreator;
 import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerLTL;
 import uniolunisaar.adam.ds.modelchecking.ModelCheckingResult;
-import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitFlowLTLMCOutputData;
 import uniolunisaar.adam.exceptions.ExternalToolException;
 import uniolunisaar.adam.exceptions.logics.NotConvertableException;
 import uniolunisaar.adam.logic.transformers.modelchecking.circuit.flowltl2ltl.FlowLTLTransformerParallel;
 import uniolunisaar.adam.logic.transformers.modelchecking.circuit.flowltl2ltl.FlowLTLTransformerSequential;
 import uniolunisaar.adam.logic.transformers.modelchecking.circuit.pnwt2pn.PnwtAndFlowLTLtoPNParallel;
 import uniolunisaar.adam.logic.transformers.modelchecking.circuit.pnwt2pn.PnwtAndFlowLTLtoPNSequential;
-import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitFlowLTLMCStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.ProcessNotStartedException;
 import uniolunisaar.adam.generators.pnwt.RedundantNetwork;
 import uniolunisaar.adam.generators.pnwt.SmartFactory;
 import uniolunisaar.adam.generators.pnwt.UpdatingNetwork;
 import uniolunisaar.adam.util.PNWTTools;
-import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings;
 import uniolunisaar.adam.logic.transformers.modelchecking.circuit.pnwt2pn.PnwtAndFlowLTLtoPNSequentialInhibitor;
 
 /**
@@ -125,27 +123,27 @@ public class AdamModelChecker {
     /**
      * Returns a Petri net which is created from the given name (and if
      * !parallel) from the formula which can be used to do standard LTL model
-     * checking on Petri nets.
+     * checking on Petri nets.If parallel is set the parallel algorithm is used,
+     * which is only implemented for one flow formula.Otherwise the sequential
+     * approach is used.
      *
-     * If parallel is set the parallel algorithm is used, which is only
-     * implemented for one flow formula. Otherwise the sequential approach is
-     * used.
      *
      * @param net
      * @param f
-     * @param parallel
+     * @param settings
      * @return
      */
-    public static PetriNet getModelCheckingNet(PetriNetWithTransits net, RunFormula f, boolean parallel, boolean inhibitor) {
+    public static PetriNet getModelCheckingNet(PetriNetWithTransits net, RunFormula f, AdamCircuitFlowLTLMCSettings settings) {
         if (isLTLFormula(f)) {
             return net;
         }
-        if (parallel) {
+        if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL) {
             return PnwtAndFlowLTLtoPNParallel.createNet4ModelCheckingParallelOneFlowFormula(net);
         } else {
-            if (inhibitor) {
+            if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
                 return PnwtAndFlowLTLtoPNSequentialInhibitor.createNet4ModelCheckingSequential(net, f, true);
             }
+            
             return PnwtAndFlowLTLtoPNSequential.createNet4ModelCheckingSequential(net, f, true);
         }
     }
@@ -163,12 +161,11 @@ public class AdamModelChecker {
      * @param modelCheckingNet - the net on which the standard LTL model
      * checking would like to be produced
      * @param f - the formula to transform
-     * @param parallel
      * @return
      * @throws uniolunisaar.adam.exceptions.logics.NotConvertableException
      */
-    public static ILTLFormula getModelCheckingFormula(PetriNetWithTransits originalNet, PetriNet modelCheckingNet, RunFormula f, boolean parallel) throws NotConvertableException {
-        if (parallel) {
+    public static ILTLFormula getModelCheckingFormula(PetriNetWithTransits originalNet, PetriNet modelCheckingNet, RunFormula f, AdamCircuitFlowLTLMCSettings settings) throws NotConvertableException {
+        if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL) {
             return FlowLTLTransformerParallel.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
             return FlowLTLTransformerSequential.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, new AdamCircuitFlowLTLMCSettings());
@@ -177,16 +174,14 @@ public class AdamModelChecker {
 
     /**
      * Checks the flow ltl formula f on the given Petri net 'net' which is
-     * annotated with token flows.
+     * annotated with token flows.It stats != null an object is returned
+     * containing some statistical data, including the model checking net and
+     * formula.
      *
-     * It stats != null an object is returned containing some statistical data,
-     * including the model checking net and formula.
      *
      * @param net
      * @param mc
      * @param f
-     * @param path - a path where additionally files are saved.
-     * @param stats
      * @return
      * @throws InterruptedException
      * @throws IOException
@@ -195,8 +190,7 @@ public class AdamModelChecker {
      * @throws uniolunisaar.adam.exceptions.ProcessNotStartedException
      * @throws uniolunisaar.adam.exceptions.ExternalToolException
      */
-    public static ModelCheckingResult checkFlowLTLFormula(PetriNetWithTransits net, ModelCheckerFlowLTL mc, RunFormula f, String path, AdamCircuitFlowLTLMCStatistics stats) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
-        AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(path, false, false, false);
+    public static ModelCheckingResult checkFlowLTLFormula(PetriNetWithTransits net, ModelCheckerFlowLTL mc, RunFormula f) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         return mc.check(net, f);
     }
 
@@ -210,8 +204,6 @@ public class AdamModelChecker {
      * @param net
      * @param mc
      * @param f
-     * @param path
-     * @param stats
      * @return
      * @throws InterruptedException
      * @throws IOException
@@ -219,8 +211,7 @@ public class AdamModelChecker {
      * @throws ProcessNotStartedException
      * @throws ExternalToolException
      */
-    public static ModelCheckingResult checkLTLFormula(PetriNetWithTransits net, ModelCheckerLTL mc, LTLFormula f, String path, AdamCircuitFlowLTLMCStatistics stats) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
-        AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(path, false, false);
+    public static ModelCheckingResult checkLTLFormula(PetriNetWithTransits net, ModelCheckerLTL mc, LTLFormula f) throws InterruptedException, IOException, ParseException, ProcessNotStartedException, ExternalToolException {
         return mc.check(net, f);
     }
 }

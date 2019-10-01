@@ -156,7 +156,6 @@ public class AdamModelchecker {
         Abc.VerificationAlgo[] algos = new Abc.VerificationAlgo[veris.length];
         for (int i = 0; i < veris.length; i++) {
             String veri = veris[i];
-            System.out.println(veri);
             Abc.VerificationAlgo algo = null;
             if (veri.equals("IC3")) {
                 algo = VerificationAlgo.IC3;

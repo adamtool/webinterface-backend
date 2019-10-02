@@ -36,6 +36,8 @@ import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitLTLMCSettings;
 import uniolunisaar.adam.ds.modelchecking.settings.LoLASettings;
 import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings.Approach;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitLTLMCStatistics;
+import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.benchmarks.modelchecking.BenchmarksMC;
 import uniolunisaar.adam.util.logics.LogicsTools;
 
 /**
@@ -56,7 +58,8 @@ public class AdamModelchecker {
      * 5 -> optimized rendering of the system<\p>
      * 6 -> optimized rendering of the McHyper result<\p>
      * 7 -> maximality (NONE, inCircuit, inFormula)<\p>
-     * 8 -> stucking in subnet approaches (GFO, GFANDNpi, ANDGFNpi)<\p>
+     * 8 -> stucking in subnet approaches (GFO, GFANDNpi, ANDGFNpi,
+     * GFoANDNpi)<\p>
      * 9 -> if != "" sizes would be written to the given path <\p>
      * 10 -> if == "logCod" codes the transition logarithmically in the circuit
      * (only has an effect for maximality inCircuit)<\p>
@@ -67,7 +70,8 @@ public class AdamModelchecker {
      * if "mccOne" only checks one given LTL formula with one net<\p>
      * if "lola" tries to check the SDN examples with lola else compares the SDN
      * approach for several gate optimizations<\p>
-     *
+     * 12 -> EDACC (if EDACC everything is put to silence, not files are created
+     * and only the relevant outputs are send to channel edacc)
      *
      *
      * @throws ParseException
@@ -78,6 +82,11 @@ public class AdamModelchecker {
      * @throws ExternalToolException
      */
     public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
+        if (args[12].equals("EDACC")) {
+            BenchmarksMC.EDACC = true;
+            Logger.getInstance().addMessageStream("edacc", System.out);
+            Logger.getInstance().setSilent(true);
+        }
         if (args[11].equals("gen")) {
             genExamples(args);
         } else if (args[11].equals("lola")) {
@@ -336,11 +345,14 @@ public class AdamModelchecker {
         String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
         RunFormula f = FlowLTLParser.parse(pnwt, formula);
 
-        // add nb switches to file for the SDN paper        
+        // add nb switches to file for the SDN paper                
         if (!args[idOutSizes].isEmpty()) {
             try (BufferedWriter wr = new BufferedWriter(new FileWriter(args[idOutSizes] + "_sw"))) {
                 wr.append("nb_switches: ").append((CharSequence) pnwt.getExtension("nb_switches"));
             }
+        }
+        if (BenchmarksMC.EDACC) {
+            Logger.getInstance().addMessage("nb_switches: " + pnwt.getExtension("nb_switches").toString(), "edacc");
         }
         AdamCircuitFlowLTLMCSettings settings = new AdamCircuitFlowLTLMCSettings(optisSys, optsComp);
         settings.setMaximality(max);
@@ -358,14 +370,13 @@ public class AdamModelchecker {
         settings.setStatistics(stats);
 
         if (stuckInSubnet.equals("GFO")) {
-            settings.setNotStuckingInSubnetByActOPlace(true);
-            settings.setNotStuckingByActSubPlaceSeveralGFs(false);
+            settings.setStucking(AdamCircuitFlowLTLMCSettings.Stucking.GFo);
         } else if (stuckInSubnet.equals("ANDGFNpi")) {
-            settings.setNotStuckingInSubnetByActOPlace(false);
-            settings.setNotStuckingByActSubPlaceSeveralGFs(true);
+            settings.setStucking(AdamCircuitFlowLTLMCSettings.Stucking.ANDGFNpi);
         } else if (stuckInSubnet.equals("GFANDNpi")) {
-            settings.setNotStuckingInSubnetByActOPlace(false);
-            settings.setNotStuckingByActSubPlaceSeveralGFs(false);
+            settings.setStucking(AdamCircuitFlowLTLMCSettings.Stucking.GFANDNpi);
+        } else if (stuckInSubnet.equals("GFoANDNpi")) {
+            settings.setStucking(AdamCircuitFlowLTLMCSettings.Stucking.GFANDNpiAndo);
         }
 
         settings.setCodeInputTransitionsBinary(logCod);
@@ -381,6 +392,11 @@ public class AdamModelchecker {
                 wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
                 wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
             }
+        }
+        if (BenchmarksMC.EDACC) {
+            Logger.getInstance().addMessage("Algo: " + result.getAlgo().name(), "edacc");
+            Logger.getInstance().addMessage("ABC time: " + String.valueOf(stats.getAbc_sec()), "edacc");
+            Logger.getInstance().addMessage("ABC memory: " + String.valueOf(stats.getAbc_mem()), "edacc");
         }
     }
 

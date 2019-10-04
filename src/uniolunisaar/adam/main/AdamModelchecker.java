@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import uniol.apt.adt.pn.PetriNet;
@@ -71,6 +72,8 @@ public class AdamModelchecker {
      * if "mccOne" only checks one given LTL formula with one net<\p>
      * if "lola" tries to check the SDN examples with lola else compares the SDN
      * approach for several gate optimizations<\p>
+     * if "cpMCC" is used to give the needed output of the mcc contest for the
+     * comparison to lola, itstools, and enpac <\p>
      * 12 -> EDACC (if EDACC everything is put to silence, not files are created
      * and only the relevant outputs are send to channel edacc)
      *
@@ -249,6 +252,15 @@ public class AdamModelchecker {
             }
             stats.setPrintSysCircuitSizes(true);
             checkMCCOneFormula(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max, logCod);
+        } else if (args[idMCC].equals("cpMCC")) {
+            AdamCircuitLTLMCStatistics stats;
+            if (!args[idOutSizes].isEmpty()) {
+                stats = new AdamCircuitLTLMCStatistics(args[idOutSizes]);
+            } else {
+                stats = new AdamCircuitLTLMCStatistics();
+            }
+            stats.setPrintSysCircuitSizes(true);
+            compareWithAllOtherMCCTools(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max, logCod);
         } else { // the optimization case
             AdamCircuitFlowLTLMCStatistics stats;
             if (!args[idOutSizes].isEmpty()) {
@@ -283,8 +295,7 @@ public class AdamModelchecker {
 
         ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
         RunFormula f = FlowLTLParser.parse(net, args[idFormula]);
-        PetriNetWithTransits pnwt = new PetriNetWithTransits(net);// todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
-        ModelCheckingResult result = mc.check(pnwt, f.toLTLFormula());
+        ModelCheckingResult result = mc.check(net, f.toLTLFormula());
 
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();
@@ -326,7 +337,7 @@ public class AdamModelchecker {
 
             AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + id, false, false);
             settings.setOutputData(data);
-            ModelCheckingResult result = mc.check(new PetriNetWithTransits(net), f); // todo currently new PetriNetWithTransits(net) is only for the possibly attached fairness assumptions could safe some time to not create a PNWT
+            ModelCheckingResult result = mc.check(net, f);
 
             if (!args[idOutSizes].isEmpty()) {
                 stats.addResultToFile();
@@ -336,6 +347,64 @@ public class AdamModelchecker {
                     wr.append("\nABC time:").append(String.valueOf(stats.getAbc_sec()));
                     wr.append("\nABC memory:").append(String.valueOf(stats.getAbc_mem()));
                 }
+            }
+        }
+    }
+
+    private static void compareWithAllOtherMCCTools(String input, String output,
+            Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitLTLMCStatistics stats,
+            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, boolean logCod) {
+
+        Entry<String, ILTLFormula> entry = null;
+        try {
+
+            PetriNet net;
+            Map<String, ILTLFormula> formulas;
+            try {
+                net = new PnmlPNParser().parseFile(input);
+                formulas = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
+            } catch (ParseException | IOException | SAXException | ParserConfigurationException ex) {
+                Logger.getInstance().addError("Error msg: ", ex);
+                Logger.getInstance().addMessage(true, "CANNOT_COMPUTE");
+                return;
+            }
+
+            // in this case there should only be one
+            entry = formulas.entrySet().iterator().next();
+
+            AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
+            settings.setMaximality(max);
+            settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
+            settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
+            if (algo != null) {
+                settings.setVerificationAlgo(algo);
+            }
+            settings.setAbcParameters(abcParameter);
+
+            stats.setAppend(true);
+            stats.setMeasure_abc(false);
+            settings.setStatistics(stats);
+
+            settings.setCodeInputTransitionsBinary(logCod);
+
+            ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
+
+            AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + entry.getKey(), false, false);
+            settings.setOutputData(data);
+
+            ModelCheckingResult result = mc.check(net, entry.getValue());
+            Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + result.getSatisfied().name() + " DONT KNOW TECHNIQUE");
+
+            if (!args[idOutSizes].isEmpty()) {
+                stats.addResultToFile();
+            }
+        } catch (InterruptedException | IOException | ParseException | ProcessNotStartedException | ExternalToolException ex) {
+            if (entry != null) {
+                Logger.getInstance().addError("Error msg: ", ex);
+                Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + " CANNOT_COMPUTE");
+            } else {
+                Logger.getInstance().addError("Error msg: ", ex);
+                Logger.getInstance().addMessage(true, "CANNOT_COMPUTE");
             }
         }
     }

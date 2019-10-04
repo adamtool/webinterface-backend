@@ -11,7 +11,7 @@ import uniolunisaar.adam.bounded.qbfapproach.solver.QbfSolverOptions;
 import uniolunisaar.adam.bounded.qbfconcurrent.solver.QbfConSolver;
 import uniolunisaar.adam.bounded.qbfconcurrent.solver.QbfConSolverFactory;
 import uniolunisaar.adam.bounded.qbfconcurrent.solver.QbfConSolverOptions;
-import uniolunisaar.adam.ds.objectives.Condition;
+import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.pg.SolvingException;

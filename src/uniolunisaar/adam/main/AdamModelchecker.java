@@ -58,7 +58,7 @@ public class AdamModelchecker {
      * 5 -> optimized rendering of the system<\p>
      * 6 -> optimized rendering of the McHyper result<\p>
      * 7 -> maximality (NONE, inCircuit, inFormula,
-     * inCircuitWithoutStucking)<\p>
+     * inCircuitWithNotStuckingFormula)<\p>
      * 8 -> stucking in subnet approaches (GFO, GFANDNpi, ANDGFNpi,
      * GFoANDNpi)<\p>
      * 9 -> if != "" sizes would be written to the given path <\p>
@@ -216,13 +216,13 @@ public class AdamModelchecker {
         String output = args[idOutput];
 
         AdamCircuitLTLMCSettings.Maximality max = AdamCircuitFlowLTLMCSettings.Maximality.MAX_INTERLEAVING_IN_CIRCUIT;
-        boolean inCircuitWithoutStucking = false;
+        boolean inCircuitWithNotStucking = false;
         if (args[idMax].equals("NONE")) {
             max = AdamCircuitLTLMCSettings.Maximality.MAX_NONE;
         } else if (args[idMax].equals("inFormula")) {
             max = AdamCircuitLTLMCSettings.Maximality.MAX_INTERLEAVING;
-        } else if (args[idMax].equals("inCircuitWithoutStucking")) {
-            inCircuitWithoutStucking = true;
+        } else if (args[idMax].equals("inCircuitWithNotStuckingFormula")) {
+            inCircuitWithNotStucking = true;
         }
 
         boolean logCod = false;
@@ -257,7 +257,7 @@ public class AdamModelchecker {
                 stats = new AdamCircuitFlowLTLMCStatistics();
             }
             stats.setPrintSysCircuitSizes(true);
-            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max, args[idStuckInSubnet], logCod, inCircuitWithoutStucking);
+            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max, args[idStuckInSubnet], logCod, inCircuitWithNotStucking);
         }
     }
 

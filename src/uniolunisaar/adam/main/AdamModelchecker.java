@@ -368,7 +368,7 @@ public class AdamModelchecker {
                 PNTools.annotateProcessFamilyID(net);
                 formulas = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
             } catch (ParseException | IOException | SAXException | ParserConfigurationException ex) {
-                Logger.getInstance().addError("Error msg: ", ex);
+                Logger.getInstance().addError("Error msg: " + ex.getMessage(), ex);
                 Logger.getInstance().addMessage(true, "CANNOT_COMPUTE");
                 return;
             }
@@ -404,10 +404,10 @@ public class AdamModelchecker {
             }
         } catch (InterruptedException | IOException | ParseException | ProcessNotStartedException | ExternalToolException ex) {
             if (entry != null) {
-                Logger.getInstance().addError("Error msg: ", ex);
+                Logger.getInstance().addError("Error msg: " + ex.getMessage(), ex);
                 Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + " CANNOT_COMPUTE");
             } else {
-                Logger.getInstance().addError("Error msg: ", ex);
+                Logger.getInstance().addError("Error msg: " + ex.getMessage(), ex);
                 Logger.getInstance().addMessage(true, "CANNOT_COMPUTE");
             }
         }

@@ -38,6 +38,7 @@ import uniolunisaar.adam.ds.modelchecking.settings.LoLASettings;
 import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings.Approach;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitLTLMCStatistics;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.PNTools;
 import uniolunisaar.adam.util.benchmarks.modelchecking.BenchmarksMC;
 import uniolunisaar.adam.util.logics.LogicsTools;
 
@@ -277,6 +278,7 @@ public class AdamModelchecker {
             Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitLTLMCStatistics stats,
             String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, boolean logCod) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = new PnmlPNParser().parseFile(input);
+        PNTools.annotateProcessFamilyID(net);
 
         AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
         settings.setMaximality(max);
@@ -314,6 +316,7 @@ public class AdamModelchecker {
             String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, boolean logCod) throws ParseException, IOException, SAXException, ParserConfigurationException, InterruptedException, ProcessNotStartedException, ExternalToolException {
         stats.setAppend(true);
         PetriNet net = new PnmlPNParser().parseFile(input);
+        PNTools.annotateProcessFamilyID(net);
         Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
 
         AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
@@ -362,6 +365,7 @@ public class AdamModelchecker {
             Map<String, ILTLFormula> formulas;
             try {
                 net = new PnmlPNParser().parseFile(input);
+                PNTools.annotateProcessFamilyID(net);
                 formulas = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
             } catch (ParseException | IOException | SAXException | ParserConfigurationException ex) {
                 Logger.getInstance().addError("Error msg: ", ex);

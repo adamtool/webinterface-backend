@@ -397,7 +397,7 @@ public class AdamModelchecker {
             settings.setOutputData(data);
 
             ModelCheckingResult result = mc.check(net, entry.getValue());
-            Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + result.getSatisfied().name() + " DONT KNOW TECHNIQUE");
+            Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + " " + result.getSatisfied().name() + " SOME TECHNIQUE");
 
             if (!args[idOutSizes].isEmpty()) {
                 stats.addResultToFile();

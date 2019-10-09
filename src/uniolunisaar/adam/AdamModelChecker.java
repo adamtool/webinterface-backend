@@ -150,17 +150,18 @@ public class AdamModelChecker {
 
     /**
      * Returns the transformed formula which can be used to do the standard LTL
-     * model checking on the modelCheckingNet.
+     * model checking on the modelCheckingNet.If parallel is set the parallel algorithm is used, which is only
+ implemented for one flow formula.
      *
-     * If parallel is set the parallel algorithm is used, which is only
-     * implemented for one flow formula. Otherwise the sequential approach is
-     * used.
+     * Otherwise the sequential approach is
+ used.
      *
      * @param originalNet - the input net from which the modelCheckingNet had
      * been created
      * @param modelCheckingNet - the net on which the standard LTL model
      * checking would like to be produced
      * @param f - the formula to transform
+     * @param settings
      * @return
      * @throws uniolunisaar.adam.exceptions.logics.NotConvertableException
      */
@@ -168,7 +169,7 @@ public class AdamModelChecker {
         if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL) {
             return FlowLTLTransformerParallel.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
-            return FlowLTLTransformerSequential.createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, new AdamCircuitFlowLTLMCSettings());
+            return new FlowLTLTransformerSequential().createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, new AdamCircuitFlowLTLMCSettings());
         }
     }
 

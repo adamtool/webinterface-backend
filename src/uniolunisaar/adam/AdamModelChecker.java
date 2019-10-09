@@ -143,18 +143,17 @@ public class AdamModelChecker {
             if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
                 return PnwtAndFlowLTLtoPNSequentialInhibitor.createNet4ModelCheckingSequential(net, f, true);
             }
-            
+
             return PnwtAndFlowLTLtoPNSequential.createNet4ModelCheckingSequential(net, f, true);
         }
     }
 
     /**
      * Returns the transformed formula which can be used to do the standard LTL
-     * model checking on the modelCheckingNet.If parallel is set the parallel algorithm is used, which is only
- implemented for one flow formula.
+     * model checking on the modelCheckingNet.If parallel is set the parallel
+     * algorithm is used, which is only implemented for one flow formula.
      *
-     * Otherwise the sequential approach is
- used.
+     * Otherwise the sequential approach is used.
      *
      * @param originalNet - the input net from which the modelCheckingNet had
      * been created
@@ -167,7 +166,7 @@ public class AdamModelChecker {
      */
     public static ILTLFormula getModelCheckingFormula(PetriNetWithTransits originalNet, PetriNet modelCheckingNet, RunFormula f, AdamCircuitFlowLTLMCSettings settings) throws NotConvertableException {
         if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL) {
-            return FlowLTLTransformerParallel.createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
+            return new FlowLTLTransformerParallel().createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
             return new FlowLTLTransformerSequential().createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, new AdamCircuitFlowLTLMCSettings());
         }

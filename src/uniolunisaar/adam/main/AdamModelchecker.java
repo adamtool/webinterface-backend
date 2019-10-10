@@ -49,6 +49,26 @@ import uniolunisaar.adam.util.logics.LogicsTools;
 public class AdamModelchecker {
 
     /**
+     * Needs to get a ;-separated string as args[0]. The order must fit to
+     * mainWithParameterList. z.B. TACAS'20:
+     * file;;IC3;;formula;NONE;NONE;NONE;inCircuitWithNotStuckingFormula;GFANDNpi;;logCod;seq;sdn;EDACC
+     *
+     * @param args
+     * @throws ParseException
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws NotConvertableException
+     * @throws ProcessNotStartedException
+     * @throws ExternalToolException
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     * @throws RenderException
+     */
+    public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
+        mainWithParameterList(args[0].split(","));
+    }
+
+    /**
      *
      * @param args<\p>
      * 0 -> Input path to APT<\p>
@@ -66,8 +86,9 @@ public class AdamModelchecker {
      * 9 -> if != "" sizes would be written to the given path <\p>
      * 10 -> if == "logCod" codes the transition logarithmically in the circuit
      * <\p>
-     * 11 -> if "gen" then only creates a text file of the formulas for ADAM and
-     * LoLA and converts the net also into LoLA format <\p>
+     * 11 -> approach (seq, seqIn, par, parIn) 12 -> if "gen" then only creates
+     * a text file of the formulas for ADAM and LoLA and converts the net also
+     * into LoLA format <\p>
      * if "mcc" expecting a Petri net in pnml format and a path to a formula in
      * the mcc format as input, checks all formulas in this call<\p>
      * if "mccOne" only checks one given LTL formula with one net<\p>
@@ -75,7 +96,7 @@ public class AdamModelchecker {
      * approach for several gate optimizations<\p>
      * if "cpMCC" is used to give the needed output of the mcc contest for the
      * comparison to lola, itstools, and enpac <\p>
-     * 12 -> EDACC (if EDACC everything is put to silence, not files are created
+     * 13 -> EDACC (if EDACC everything is put to silence, not files are created
      * and only the relevant outputs are send to channel edacc)
      *
      *
@@ -86,15 +107,15 @@ public class AdamModelchecker {
      * @throws ProcessNotStartedException
      * @throws ExternalToolException
      */
-    public static void main(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
-        if (args[12].equals("EDACC")) {
+    public static void mainWithParameterList(String[] args) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException, SAXException, ParserConfigurationException, RenderException {
+        if (args[13].equals("EDACC")) {
             BenchmarksMC.EDACC = true;
             Logger.getInstance().addMessageStream("edacc", System.out);
             Logger.getInstance().setSilent(true);
         }
-        if (args[11].equals("gen")) {
+        if (args[12].equals("gen")) {
             genExamples(args);
-        } else if (args[11].equals("lola")) {
+        } else if (args[12].equals("lola")) {
             checkSDNLoLA(args);
         } else {
             check(args);
@@ -163,7 +184,8 @@ public class AdamModelchecker {
         int idStuckInSubnet = 8;
         int idOutSizes = 9;
         int idLogCod = 10;
-        int idMCC = 11;
+        int idApproach = 11;
+        int idMCC = 12;
 
         // For both approaches 
         String[] veris = args[idVeri].split("\\|");
@@ -270,7 +292,7 @@ public class AdamModelchecker {
                 stats = new AdamCircuitFlowLTLMCStatistics();
             }
             stats.setPrintSysCircuitSizes(true);
-            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max, args[idStuckInSubnet], logCod, inCircuitWithNotStucking);
+            checkSDNExamples(input, output, optisSys, optsComp, algos, abcParameter, stats, args, idFormula, idOutSizes, max, args[idStuckInSubnet], logCod, inCircuitWithNotStucking, args[idApproach]);
         }
     }
 
@@ -415,12 +437,25 @@ public class AdamModelchecker {
 
     private static void checkSDNExamples(String input, String output,
             AigerRenderer.OptimizationsSystem optisSys, OptimizationsComplete optsComp, Abc.VerificationAlgo[] algo, String abcParameter, AdamCircuitFlowLTLMCStatistics stats,
-            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, String stuckInSubnet, boolean logCod, boolean inCircuitWithoutStucking) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+            String[] args, int idFormula, int idOutSizes, AdamCircuitLTLMCSettings.Maximality max, String stuckInSubnet, boolean logCod, boolean inCircuitWithoutStucking, String approach) throws ParseException, IOException, InterruptedException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         PetriNet net = Tools.getPetriNet(input);
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
 
         String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
         RunFormula f = FlowLTLParser.parse(pnwt, formula);
+
+        Approach appr = Approach.PARALLEL_INHIBITOR;
+        if (approach.equals("seq")) {
+            appr = Approach.SEQUENTIAL;
+        } else if (approach.equals("seqIn")) {
+            appr = Approach.SEQUENTIAL_INHIBITOR;
+        } else if (approach.equals("par")) {
+            appr = Approach.PARALLEL;
+        } else if (approach.equals("parIn")) {
+            appr = Approach.PARALLEL_INHIBITOR;
+        } else {
+            throw new RuntimeException("Not exceptable key for the approach " + approach);
+        }
 
         // add nb switches to file for the SDN paper                
         if (!args[idOutSizes].isEmpty()) {
@@ -436,7 +471,7 @@ public class AdamModelchecker {
         settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
         settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
         settings.setInitFirst(true);
-        settings.setApproach(AdamCircuitFlowLTLMCSettings.Approach.SEQUENTIAL_INHIBITOR);
+        settings.setApproach(appr);
         if (algo != null) {
             settings.setVerificationAlgo(algo);
         }

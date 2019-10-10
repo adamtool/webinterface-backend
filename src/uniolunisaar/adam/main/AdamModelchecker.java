@@ -51,7 +51,7 @@ public class AdamModelchecker {
     /**
      * Needs to get a ;-separated string as args[0]. The order must fit to
      * mainWithParameterList. z.B. TACAS'20:
-     * file;;IC3;;formula;NONE;NONE;NONE;inCircuitWithNotStuckingFormula;GFANDNpi;;logCod;seq;sdn;EDACC
+     * file,,IC3,,formula,NONE,NONE,inCircuitWithNotStuckingFormula,GFANDNpi,,logCod,parIn,sdn,EDACC
      *
      * @param args
      * @throws ParseException
@@ -86,9 +86,9 @@ public class AdamModelchecker {
      * 9 -> if != "" sizes would be written to the given path <\p>
      * 10 -> if == "logCod" codes the transition logarithmically in the circuit
      * <\p>
-     * 11 -> approach (seq, seqIn, par, parIn) 12 -> if "gen" then only creates
-     * a text file of the formulas for ADAM and LoLA and converts the net also
-     * into LoLA format <\p>
+     * 11 -> approach (seq, seqIn, par, parIn)<\p>
+     * 12 -> if "gen" then only creates a text file of the formulas for ADAM and
+     * LoLA and converts the net also into LoLA format <\p>
      * if "mcc" expecting a Petri net in pnml format and a path to a formula in
      * the mcc format as input, checks all formulas in this call<\p>
      * if "mccOne" only checks one given LTL formula with one net<\p>
@@ -276,14 +276,16 @@ public class AdamModelchecker {
             stats.setPrintSysCircuitSizes(true);
             checkMCCOneFormula(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max, logCod);
         } else if (args[idMCC].equals("cpMCC")) {
-            AdamCircuitLTLMCStatistics stats;
-            if (!args[idOutSizes].isEmpty()) {
-                stats = new AdamCircuitLTLMCStatistics(args[idOutSizes]);
-            } else {
-                stats = new AdamCircuitLTLMCStatistics();
-            }
-            stats.setPrintSysCircuitSizes(true);
-            compareWithAllOtherMCCTools(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max, logCod);
+            // don't waste to much time for writing and so on
+//            AdamCircuitLTLMCStatistics stats;
+//            if (!args[idOutSizes].isEmpty()) {
+//                stats = new AdamCircuitLTLMCStatistics(args[idOutSizes]);
+//            } else {
+//                stats = new AdamCircuitLTLMCStatistics();
+//            }
+//            stats.setPrintSysCircuitSizes(true);
+//            compareWithAllOtherMCCTools(input, output, algos, abcParameter, stats, args, idFormula, idOutSizes, max, logCod);
+            compareWithAllOtherMCCTools(input, output, algos, abcParameter, null, args, idFormula, idOutSizes, max, logCod);
         } else { // the optimization case
             AdamCircuitFlowLTLMCStatistics stats;
             if (!args[idOutSizes].isEmpty()) {
@@ -407,9 +409,9 @@ public class AdamModelchecker {
             }
             settings.setAbcParameters(abcParameter);
 
-            stats.setAppend(true);
-            stats.setMeasure_abc(false);
-            settings.setStatistics(stats);
+//            stats.setAppend(true);
+//            stats.setMeasure_abc(false);
+//            settings.setStatistics(stats);
 
             settings.setCodeInputTransitionsBinary(logCod);
 
@@ -421,9 +423,9 @@ public class AdamModelchecker {
             ModelCheckingResult result = mc.check(net, entry.getValue());
             Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + " " + result.getSatisfied().name() + " SOME TECHNIQUE");
 
-            if (!args[idOutSizes].isEmpty()) {
-                stats.addResultToFile();
-            }
+//            if (!args[idOutSizes].isEmpty()) {
+//                stats.addResultToFile();
+//            }
         } catch (InterruptedException | IOException | ParseException | ProcessNotStartedException | ExternalToolException ex) {
             if (entry != null) {
                 Logger.getInstance().addError("Error msg: " + ex.getMessage(), ex);

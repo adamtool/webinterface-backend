@@ -418,6 +418,8 @@ public class AdamModelchecker {
             settings.setAbcParameters(abcParameter);
             if (fireability) {
                 settings.setAtomicPropositionType(AdamCircuitMCSettings.AtomicProps.FIREABILITY);
+            } else {
+                settings.setAtomicPropositionType(AdamCircuitMCSettings.AtomicProps.PLACES);
             }
 
 //            stats.setAppend(true);

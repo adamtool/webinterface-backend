@@ -34,6 +34,7 @@ import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
 import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitMCSettings;
 import uniolunisaar.adam.ds.modelchecking.settings.LoLASettings;
 import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings.Approach;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitLTLMCStatistics;
@@ -387,10 +388,17 @@ public class AdamModelchecker {
 
             PetriNet net;
             Map<String, ILTLFormula> formulas;
+
+            String formulaFilePath = args[idFormula];
+            boolean fireability = formulaFilePath.contains("Fireability");
             try {
                 net = new PnmlPNParser().parseFile(input);
                 PNTools.annotateProcessFamilyID(net);
-                formulas = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
+                if (fireability) {
+                    formulas = MCCXMLFormulaParser.parseLTLFromFile(formulaFilePath, net, false);
+                } else {
+                    formulas = MCCXMLFormulaParser.parseLTLFromFile(formulaFilePath, net, true);
+                }
             } catch (ParseException | IOException | SAXException | ParserConfigurationException ex) {
                 Logger.getInstance().addError("Error msg: " + ex.getMessage(), ex);
                 Logger.getInstance().addMessage(true, "CANNOT_COMPUTE");
@@ -408,11 +416,13 @@ public class AdamModelchecker {
                 settings.setVerificationAlgo(algo);
             }
             settings.setAbcParameters(abcParameter);
+            if (fireability) {
+                settings.setAtomicPropositionType(AdamCircuitMCSettings.AtomicProps.FIREABILITY);
+            }
 
 //            stats.setAppend(true);
 //            stats.setMeasure_abc(false);
 //            settings.setStatistics(stats);
-
             settings.setCodeInputTransitionsBinary(logCod);
 
             ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated

@@ -3,6 +3,7 @@ package uniolunisaar.adam.main;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;

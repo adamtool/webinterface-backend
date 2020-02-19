@@ -285,7 +285,7 @@ public class AdamSynthesizer {
     }
 
     public static BDDSolver<? extends Condition> getBDDSolver(PetriGame game, Condition.Objective win, BDDSolverOptions so) throws SolvingException {
-        return BDDSolverFactory.getInstance().getSolver(game, win, false, so);
+        return BDDSolverFactory.getInstance().getSolver(game, win, so);
     }
 
     public static BDDState getInitialGraphGameState(BDDGraph graph, BDDSolver<? extends Condition> solver) {

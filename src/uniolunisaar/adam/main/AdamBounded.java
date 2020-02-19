@@ -68,8 +68,8 @@ public class AdamBounded {
         if (option.equals("tc")) {
         	for (int i = 2; i <= n; ++i) {
         		System.setOut(silentStream);
-        		QbfConSolverOptions options = new QbfConSolverOptions(i, bb);
-                QbfConSolver<? extends Condition> solver = QbfConSolverFactory.getInstance().getSolver(filename, true, (QbfConSolverOptions)options);
+        		QbfConSolverOptions options = new QbfConSolverOptions(i, bb, true);
+                QbfConSolver<? extends Condition<?>> solver = QbfConSolverFactory.getInstance().getSolver(filename, (QbfConSolverOptions)options);
                 boolean succ = solver.existsWinningStrategy();
                 System.setOut(originalStream);
                 String result = succ ? "SAT" : "UNSAT";
@@ -88,8 +88,8 @@ public class AdamBounded {
         } else {
         	for (int i = 2; i <= n; ++i) {
         		System.setOut(silentStream);
-        		QbfSolverOptions options = new QbfSolverOptions(i, bb);
-                QbfSolver<? extends Condition> solver = QbfSolverFactory.getInstance().getSolver(filename, true, (QbfSolverOptions)options);
+        		QbfSolverOptions options = new QbfSolverOptions(i, bb, true);
+                QbfSolver<? extends Condition> solver = QbfSolverFactory.getInstance().getSolver(filename, (QbfSolverOptions)options);
                 boolean succ = solver.existsWinningStrategy();
                 String result = succ ? "SAT" : "UNSAT";
                 System.setOut(originalStream);

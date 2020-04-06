@@ -6,7 +6,7 @@ import uniol.apt.io.parser.ParseException;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.ds.logics.ltl.LTLFormula;
-import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
+import uniolunisaar.adam.ds.logics.ltl.flowltl.RunLTLFormula;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
 import uniolunisaar.adam.util.logics.FormulaCreator;
 import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
@@ -90,7 +90,7 @@ public class AdamModelChecker {
      * @param f
      * @return
      */
-    public static boolean isLTLFormula(RunFormula f) {
+    public static boolean isLTLFormula(RunLTLFormula f) {
         return (f.getPhi() instanceof ILTLFormula);
     }
 
@@ -117,7 +117,7 @@ public class AdamModelChecker {
      * @return
      * @throws ParseException
      */
-    public static RunFormula parseFlowLTLFormula(PetriNet net, String formula) throws ParseException {
+    public static RunLTLFormula parseFlowLTLFormula(PetriNet net, String formula) throws ParseException {
         return FlowLTLParser.parse(net, formula);
     }
 
@@ -134,7 +134,7 @@ public class AdamModelChecker {
      * @param settings
      * @return
      */
-    public static PetriNet getModelCheckingNet(PetriNetWithTransits net, RunFormula f, AdamCircuitFlowLTLMCSettings settings) {
+    public static PetriNet getModelCheckingNet(PetriNetWithTransits net, RunLTLFormula f, AdamCircuitFlowLTLMCSettings settings) {
         if (isLTLFormula(f)) {
             return net;
         }
@@ -168,7 +168,7 @@ public class AdamModelChecker {
      * @return
      * @throws uniolunisaar.adam.exceptions.logics.NotConvertableException
      */
-    public static ILTLFormula getModelCheckingFormula(PetriNetWithTransits originalNet, PetriNet modelCheckingNet, RunFormula f, AdamCircuitFlowLTLMCSettings settings) throws NotConvertableException {
+    public static ILTLFormula getModelCheckingFormula(PetriNetWithTransits originalNet, PetriNet modelCheckingNet, RunLTLFormula f, AdamCircuitFlowLTLMCSettings settings) throws NotConvertableException {
         if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL) {
             return new FlowLTLTransformerParallel().createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f);
         } else {
@@ -194,7 +194,7 @@ public class AdamModelChecker {
      * @throws uniolunisaar.adam.exceptions.ProcessNotStartedException
      * @throws uniolunisaar.adam.exceptions.ExternalToolException
      */
-    public static ModelCheckingResult checkFlowLTLFormula(PetriNetWithTransits net, ModelCheckerFlowLTL mc, RunFormula f) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
+    public static ModelCheckingResult checkFlowLTLFormula(PetriNetWithTransits net, ModelCheckerFlowLTL mc, RunLTLFormula f) throws InterruptedException, IOException, ParseException, NotConvertableException, ProcessNotStartedException, ExternalToolException {
         return mc.check(net, f);
     }
 

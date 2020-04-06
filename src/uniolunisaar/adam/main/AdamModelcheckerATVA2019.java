@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
+import uniolunisaar.adam.ds.logics.ltl.flowltl.RunLTLFormula;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitFlowLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitFlowLTLMCStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
@@ -46,7 +46,7 @@ public class AdamModelcheckerATVA2019 {
 
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
         String formula = (args[4].isEmpty()) ? (String) pnwt.getExtension("formula") : args[4];
-        RunFormula f = FlowLTLParser.parse(pnwt, formula);
+        RunLTLFormula f = FlowLTLParser.parse(pnwt, formula);
 
         String output = args[1];
 

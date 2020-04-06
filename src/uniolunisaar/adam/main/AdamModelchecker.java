@@ -14,7 +14,7 @@ import uniol.apt.io.parser.impl.PnmlPNParser;
 import uniol.apt.io.renderer.RenderException;
 import uniol.apt.io.renderer.impl.LoLAPNRenderer;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
-import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
+import uniolunisaar.adam.ds.logics.ltl.flowltl.RunLTLFormula;
 import uniolunisaar.adam.ds.modelchecking.ModelCheckingResult;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitFlowLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitFlowLTLMCStatistics;
@@ -322,7 +322,7 @@ public class AdamModelchecker {
         settings.setCodeInputTransitionsBinary(logCod);
 
         ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
-        RunFormula f = FlowLTLParser.parse(net, args[idFormula]);
+        RunLTLFormula f = FlowLTLParser.parse(net, args[idFormula]);
         ModelCheckingResult result = mc.check(net, f.toLTLFormula());
 
         if (!args[idOutSizes].isEmpty()) {
@@ -457,7 +457,7 @@ public class AdamModelchecker {
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
 
         String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
-        RunFormula f = FlowLTLParser.parse(pnwt, formula);
+        RunLTLFormula f = FlowLTLParser.parse(pnwt, formula);
 
         Approach appr = Approach.PARALLEL_INHIBITOR;
         if (approach.equals("seq")) {
@@ -536,7 +536,7 @@ public class AdamModelchecker {
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
 
         String formula = (args[idFormula].isEmpty()) ? (String) pnwt.getExtension("formula") : args[idFormula];
-        RunFormula f = FlowLTLParser.parse(pnwt, formula);
+        RunLTLFormula f = FlowLTLParser.parse(pnwt, formula);
 
         LoLASettings settings = new LoLASettings();
         settings.setApproach(Approach.SEQUENTIAL);

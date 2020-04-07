@@ -15,7 +15,7 @@ import uniol.apt.io.renderer.RenderException;
 import uniol.apt.io.renderer.impl.LoLAPNRenderer;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.logics.ltl.flowltl.RunLTLFormula;
-import uniolunisaar.adam.ds.modelchecking.ModelCheckingResult;
+import uniolunisaar.adam.ds.modelchecking.results.LTLModelCheckingResult;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitFlowLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitFlowLTLMCStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
@@ -24,8 +24,8 @@ import uniolunisaar.adam.exceptions.ProcessNotStartedException;
 import uniolunisaar.adam.exceptions.logics.NotConvertableException;
 import uniolunisaar.adam.logic.externaltools.modelchecking.Abc;
 import uniolunisaar.adam.logic.externaltools.modelchecking.Abc.VerificationAlgo;
-import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
-import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerLTL;
+import uniolunisaar.adam.logic.modelchecking.ltl.circuits.ModelCheckerFlowLTL;
+import uniolunisaar.adam.logic.modelchecking.ltl.circuits.ModelCheckerLTL;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
 import uniolunisaar.adam.logic.parser.logics.mccformula.MCCXMLFormulaParser;
 import uniolunisaar.adam.logic.transformers.pn2aiger.AigerRenderer;
@@ -33,11 +33,11 @@ import uniolunisaar.adam.logic.transformers.pn2aiger.AigerRenderer.Optimizations
 import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitLTLMCOutputData;
-import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
-import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitLTLMCSettings;
-import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitMCSettings;
-import uniolunisaar.adam.ds.modelchecking.settings.LoLASettings;
-import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings.Approach;
+import uniolunisaar.adam.ds.modelchecking.settings.ltl.AdamCircuitFlowLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ltl.AdamCircuitLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ltl.AdamCircuitMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ltl.LoLASettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ltl.ModelCheckingSettings.Approach;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitLTLMCStatistics;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PNTools;
@@ -323,7 +323,7 @@ public class AdamModelchecker {
 
         ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
         RunLTLFormula f = FlowLTLParser.parse(net, args[idFormula]);
-        ModelCheckingResult result = mc.check(net, f.toLTLFormula());
+        LTLModelCheckingResult result = mc.check(net, f.toLTLFormula());
 
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();
@@ -366,7 +366,7 @@ public class AdamModelchecker {
 
             AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + id, false, false);
             settings.setOutputData(data);
-            ModelCheckingResult result = mc.check(net, f);
+            LTLModelCheckingResult result = mc.check(net, f);
 
             if (!args[idOutSizes].isEmpty()) {
                 stats.addResultToFile();
@@ -433,7 +433,7 @@ public class AdamModelchecker {
             AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + entry.getKey(), false, false);
             settings.setOutputData(data);
 
-            ModelCheckingResult result = mc.check(net, entry.getValue());
+            LTLModelCheckingResult result = mc.check(net, entry.getValue());
             Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + " " + result.getSatisfied().name() + " SOME TECHNIQUE");
 
 //            if (!args[idOutSizes].isEmpty()) {
@@ -510,7 +510,7 @@ public class AdamModelchecker {
         settings.setNotStuckingAlsoByMaxInCircuit(inCircuitWithoutStucking);
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
-        ModelCheckingResult result = mc.check(pnwt, f);
+        LTLModelCheckingResult result = mc.check(pnwt, f);
 
         if (!args[idOutSizes].isEmpty()) {
             stats.addResultToFile();
@@ -543,7 +543,7 @@ public class AdamModelchecker {
         settings.setOutputPath(outputPath);
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
-        ModelCheckingResult result = mc.check(pnwt, f);
+        LTLModelCheckingResult result = mc.check(pnwt, f);
         try (BufferedWriter wr = new BufferedWriter(new FileWriter(outputPath + "_result.txt"))) {
             wr.append("Result: ").append(result.getSatisfied().toString());
         }

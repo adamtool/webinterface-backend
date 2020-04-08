@@ -14,8 +14,6 @@ import uniolunisaar.adam.logic.modelchecking.ltl.circuits.ModelCheckerLTL;
 import uniolunisaar.adam.ds.modelchecking.results.LTLModelCheckingResult;
 import uniolunisaar.adam.exceptions.ExternalToolException;
 import uniolunisaar.adam.exceptions.logics.NotConvertableException;
-import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTransformerParallel;
-import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTransformerSequential;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndFlowLTLtoPNParallel;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndFlowLTLtoPNSequential;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
@@ -26,6 +24,8 @@ import uniolunisaar.adam.generators.pnwt.UpdatingNetwork;
 import uniolunisaar.adam.util.PNWTTools;
 import uniolunisaar.adam.ds.modelchecking.settings.ltl.AdamCircuitFlowLTLMCSettings;
 import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings;
+import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTransformerParallel;
+import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTransformerSequential;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndFlowLTLtoPNParallelInhibitor;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndFlowLTLtoPNSequentialInhibitor;
 

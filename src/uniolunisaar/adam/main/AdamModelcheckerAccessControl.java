@@ -61,7 +61,7 @@ public class AdamModelcheckerAccessControl {
                 break;
             case "university":
                 break;
-            default: // do what ever we want to do with the scalalibity benchmark (load and parse or parse the semicolon-separated list and start a generator)
+            default: // do what ever we want to do with the scalability benchmark (load and parse, or parse the semicolon-separated list and start a generator)
                 break;
         }
         try {

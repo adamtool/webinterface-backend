@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.renderer.RenderException;
-import uniolunisaar.adam.ds.logics.ctl.flowctl.RunCTLFormula;
+import uniolunisaar.adam.ds.logics.ctl.flowctl.separate.RunCTLSeparateFormula;
 import uniolunisaar.adam.ds.modelchecking.results.ModelCheckingResult;
 import uniolunisaar.adam.ds.modelchecking.settings.ModelCheckingSettings;
 import uniolunisaar.adam.ds.modelchecking.settings.ctl.FlowCTLLoLAModelcheckingSettings;
@@ -53,7 +53,7 @@ public class AdamModelcheckerAccessControl {
         }
         ModelCheckerFlowCTL mc = new ModelCheckerFlowCTL(settings);
         PetriNetWithTransits pn = null;
-        RunCTLFormula formula = null;
+        RunCTLSeparateFormula formula = null;
         switch (benchmark) {
             case "airport":
                 break;

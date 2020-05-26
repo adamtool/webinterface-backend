@@ -3,7 +3,6 @@ package uniolunisaar.adam.main;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
@@ -13,6 +12,8 @@ import uniol.apt.io.parser.ParseException;
 import uniol.apt.io.parser.impl.PnmlPNParser;
 import uniol.apt.io.renderer.RenderException;
 import uniol.apt.io.renderer.impl.LoLAPNRenderer;
+import uniolunisaar.adam.ds.circuits.CircuitRendererSettings;
+import uniolunisaar.adam.ds.circuits.CircuitRendererSettings.TransitionEncoding;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.logics.ltl.flowltl.RunLTLFormula;
 import uniolunisaar.adam.ds.modelchecking.results.LTLModelCheckingResult;
@@ -42,7 +43,6 @@ import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitLTLMCStatistics;
 import uniolunisaar.adam.tools.Logger;
 import uniolunisaar.adam.util.PNTools;
 import uniolunisaar.adam.util.benchmarks.modelchecking.BenchmarksMC;
-import uniolunisaar.adam.util.logics.LogicsTools;
 
 /**
  *
@@ -306,20 +306,24 @@ public class AdamModelchecker {
         PetriNet net = new PnmlPNParser().parseFile(input);
         PNTools.annotateProcessFamilyID(net);
 
-        AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
-        settings.setMaximality(max);
-        settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
-        settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
-        if (algo != null) {
-            settings.setVerificationAlgo(algo);
+        AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_out", false, false);
+
+        CircuitRendererSettings.TransitionEncoding encoding = logCod ? TransitionEncoding.LOGARITHMIC : CircuitRendererSettings.TransitionEncoding.EXPLICIT;
+        AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings(
+                data,
+                max,
+                AdamCircuitMCSettings.Stuttering.PREFIX_REGISTER,
+                CircuitRendererSettings.TransitionSemantics.OUTGOING,
+                encoding,
+                CircuitRendererSettings.AtomicPropositions.PLACES_AND_TRANSITIONS,
+                AigerRenderer.OptimizationsSystem.NONE, OptimizationsComplete.NONE,
+                algo);
+
+        if (algo == null) {
+            settings.setVerificationAlgo(new VerificationAlgo[]{VerificationAlgo.IC3});
         }
         settings.setAbcParameters(abcParameter);
-
-        AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_out", false, false);
-        settings.setOutputData(data);
         settings.setStatistics(stats);
-
-        settings.setCodeInputTransitionsBinary(logCod);
 
         ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
         RunLTLFormula f = FlowLTLParser.parse(net, args[idFormula]);
@@ -345,18 +349,22 @@ public class AdamModelchecker {
         PNTools.annotateProcessFamilyID(net);
         Map<String, ILTLFormula> formula = MCCXMLFormulaParser.parseLTLFromFile(args[idFormula], net);
 
-        AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
-        settings.setMaximality(max);
-        settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
-        settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
-        if (algo != null) {
-            settings.setVerificationAlgo(algo);
+        CircuitRendererSettings.TransitionEncoding encoding = logCod ? TransitionEncoding.LOGARITHMIC : CircuitRendererSettings.TransitionEncoding.EXPLICIT;
+        AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings(
+                new AdamCircuitFlowLTLMCOutputData("output", false, false, false),
+                max,
+                AdamCircuitMCSettings.Stuttering.PREFIX_REGISTER,
+                CircuitRendererSettings.TransitionSemantics.OUTGOING,
+                encoding,
+                CircuitRendererSettings.AtomicPropositions.PLACES_AND_TRANSITIONS,
+                AigerRenderer.OptimizationsSystem.NONE, OptimizationsComplete.NONE,
+                algo);
+
+        if (algo == null) {
+            settings.setVerificationAlgo(new VerificationAlgo[]{VerificationAlgo.IC3});
         }
         settings.setAbcParameters(abcParameter);
-
         settings.setStatistics(stats);
-
-        settings.setCodeInputTransitionsBinary(logCod);
 
         ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
 
@@ -409,29 +417,42 @@ public class AdamModelchecker {
             // in this case there should only be one
             entry = formulas.entrySet().iterator().next();
 
-            AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings();
-            settings.setMaximality(max);
-            settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
-            settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
-            if (algo != null) {
-                settings.setVerificationAlgo(algo);
+            AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + entry.getKey(), false, false);
+
+            CircuitRendererSettings.TransitionEncoding encoding = logCod ? TransitionEncoding.LOGARITHMIC : CircuitRendererSettings.TransitionEncoding.EXPLICIT;
+            AdamCircuitLTLMCSettings settings;
+
+            if (fireability) {
+                settings = new AdamCircuitLTLMCSettings(
+                        data,
+                        max,
+                        AdamCircuitMCSettings.Stuttering.PREFIX_REGISTER,
+                        CircuitRendererSettings.TransitionSemantics.OUTGOING,
+                        encoding,
+                        CircuitRendererSettings.AtomicPropositions.FIREABILITY,
+                        AigerRenderer.OptimizationsSystem.NONE, OptimizationsComplete.NONE,
+                        algo);
+            } else {
+                settings = new AdamCircuitLTLMCSettings(
+                        data,
+                        max,
+                        AdamCircuitMCSettings.Stuttering.PREFIX_REGISTER,
+                        CircuitRendererSettings.TransitionSemantics.OUTGOING,
+                        encoding,
+                        CircuitRendererSettings.AtomicPropositions.PLACES,
+                        AigerRenderer.OptimizationsSystem.NONE, OptimizationsComplete.NONE,
+                        algo);
+
+            }
+            if (algo == null) {
+                settings.setVerificationAlgo(new VerificationAlgo[]{VerificationAlgo.IC3});
             }
             settings.setAbcParameters(abcParameter);
-            if (fireability) {
-                settings.setAtomicPropositionType(AdamCircuitMCSettings.AtomicProps.FIREABILITY);
-            } else {
-                settings.setAtomicPropositionType(AdamCircuitMCSettings.AtomicProps.PLACES);
-            }
 
 //            stats.setAppend(true);
 //            stats.setMeasure_abc(false);
 //            settings.setStatistics(stats);
-            settings.setCodeInputTransitionsBinary(logCod);
-
             ModelCheckerLTL mc = new ModelCheckerLTL(settings); // todo: currently no optimizations integrated
-
-            AdamCircuitLTLMCOutputData data = new AdamCircuitLTLMCOutputData(output + "_" + entry.getKey(), false, false);
-            settings.setOutputData(data);
 
             LTLModelCheckingResult result = mc.check(net, entry.getValue());
             Logger.getInstance().addMessage(true, "FORMULA " + entry.getKey() + " " + result.getSatisfied().name() + " SOME TECHNIQUE");
@@ -481,19 +502,27 @@ public class AdamModelchecker {
         if (BenchmarksMC.EDACC) {
             Logger.getInstance().addMessage("nb_switches: " + pnwt.getExtension("nb_switches").toString(), "edacc");
         }
-        AdamCircuitFlowLTLMCSettings settings = new AdamCircuitFlowLTLMCSettings(optisSys, optsComp);
-        settings.setMaximality(max);
-        settings.setSemantics(LogicsTools.TransitionSemantics.OUTGOING);
-        settings.setStuttering(AdamCircuitLTLMCSettings.Stuttering.PREFIX_REGISTER);
-        settings.setInitFirst(true);
-        settings.setApproach(appr);
-        if (algo != null) {
-            settings.setVerificationAlgo(algo);
-        }
-        settings.setAbcParameters(abcParameter);
 
         AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(output, false, false, false);
-        settings.setOutputData(data);
+
+        CircuitRendererSettings.TransitionEncoding encoding = logCod ? TransitionEncoding.LOGARITHMIC : CircuitRendererSettings.TransitionEncoding.EXPLICIT;
+        AdamCircuitFlowLTLMCSettings settings = new AdamCircuitFlowLTLMCSettings(
+                data,
+                appr,
+                max,
+                AdamCircuitMCSettings.Stuttering.PREFIX_REGISTER,
+                CircuitRendererSettings.TransitionSemantics.OUTGOING,
+                encoding,
+                CircuitRendererSettings.AtomicPropositions.PLACES_AND_TRANSITIONS,
+                optisSys, optsComp,
+                algo);
+
+        if (algo == null) {
+            settings.setVerificationAlgo(new VerificationAlgo[]{VerificationAlgo.IC3});
+        }
+        settings.setInitFirst(true);
+        settings.setApproach(appr);
+        settings.setAbcParameters(abcParameter);
         settings.setStatistics(stats);
 
         if (stuckInSubnet.equals("GFO")) {
@@ -506,7 +535,6 @@ public class AdamModelchecker {
             settings.setStucking(AdamCircuitFlowLTLMCSettings.Stucking.GFANDNpiAndo);
         }
 
-        settings.setCodeInputTransitionsBinary(logCod);
         settings.setNotStuckingAlsoByMaxInCircuit(inCircuitWithoutStucking);
 
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);

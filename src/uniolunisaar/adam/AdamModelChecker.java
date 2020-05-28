@@ -30,7 +30,7 @@ import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTra
 import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTransformerOutgoingParallel;
 import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTransformerOutgoingSequential;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndNbFlowFormulas2PNParallelInhibitor;
-import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndFlowLTLtoPNSequentialInhibitor;
+import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndNbFlowFormulas2PNSequentialInhibitor;
 import uniolunisaar.adam.util.logics.LogicsTools;
 
 /**
@@ -150,7 +150,7 @@ public class AdamModelChecker {
         } else {
             List<FlowLTLFormula> flowLTLFormulas = LogicsTools.getFlowLTLFormulas(f);
             if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
-                return PnwtAndFlowLTLtoPNSequentialInhibitor.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
+                return PnwtAndNbFlowFormulas2PNSequentialInhibitor.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
             }
             return PnwtAndNbFlowFormulas2PNSequential.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
         }

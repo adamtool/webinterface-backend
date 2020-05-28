@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
+import uniolunisaar.adam.ds.circuits.CircuitRendererSettings;
 import uniolunisaar.adam.ds.logics.ltl.ILTLFormula;
 import uniolunisaar.adam.ds.petrinet.objectives.Condition;
 import uniolunisaar.adam.ds.logics.ltl.LTLFormula;
@@ -31,6 +32,10 @@ import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTra
 import uniolunisaar.adam.logic.transformers.modelchecking.flowltl2ltl.FlowLTLTransformerOutgoingSequential;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndNbFlowFormulas2PNParallelInhibitor;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.PnwtAndNbFlowFormulas2PNSequentialInhibitor;
+import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.withoutinittflplaces.PnwtAndNbFlowFormulas2PNParInhibitorNoInit;
+import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.withoutinittflplaces.PnwtAndNbFlowFormulas2PNParallelNoInit;
+import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.withoutinittflplaces.PnwtAndNbFlowFormulas2PNSeqInhibitorNoInit;
+import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.withoutinittflplaces.PnwtAndNbFlowFormulas2PNSequentialNoInit;
 import uniolunisaar.adam.util.logics.LogicsTools;
 
 /**
@@ -144,15 +149,31 @@ public class AdamModelChecker {
         }
         if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL) {
 // todo:                throw new NotConvertableException("The parallel approach (without inhibitor arcs) is not implemented for more than one flow subformula!. Please use another approach.");
-            return PnwtAndNbFlowFormulas2PNParallel.createNet4ModelCheckingParallelOneFlowFormula(net);
+            if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                return PnwtAndNbFlowFormulas2PNParallelNoInit.createNet4ModelCheckingParallelOneFlowFormula(net);
+            } else {
+                return PnwtAndNbFlowFormulas2PNParallel.createNet4ModelCheckingParallelOneFlowFormula(net);
+            }
         } else if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL_INHIBITOR) {
-            return PnwtAndNbFlowFormulas2PNParallelInhibitor.createNet4ModelCheckingParallelOneFlowFormula(net);
+            if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                return PnwtAndNbFlowFormulas2PNParInhibitorNoInit.createNet4ModelCheckingParallelOneFlowFormula(net);
+            } else {
+                return PnwtAndNbFlowFormulas2PNParallelInhibitor.createNet4ModelCheckingParallelOneFlowFormula(net);
+            }
         } else {
             List<FlowLTLFormula> flowLTLFormulas = LogicsTools.getFlowLTLFormulas(f);
             if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
-                return PnwtAndNbFlowFormulas2PNSequentialInhibitor.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
+                if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                    return PnwtAndNbFlowFormulas2PNSeqInhibitorNoInit.createNet4ModelCheckingSequential(net, flowLTLFormulas.size());
+                } else {
+                    return PnwtAndNbFlowFormulas2PNSequentialInhibitor.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
+                }
             }
-            return PnwtAndNbFlowFormulas2PNSequential.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
+            if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                return PnwtAndNbFlowFormulas2PNSequentialNoInit.createNet4ModelCheckingSequential(net, flowLTLFormulas.size());
+            } else {
+                return PnwtAndNbFlowFormulas2PNSequential.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
+            }
         }
     }
 

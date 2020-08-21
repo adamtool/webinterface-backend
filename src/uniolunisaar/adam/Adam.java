@@ -2,7 +2,7 @@ package uniolunisaar.adam;
 
 import java.io.PrintStream;
 import uniol.apt.io.renderer.RenderException;
-import uniolunisaar.adam.ds.petrinet.objectives.Condition;
+import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.petrigame.PetriGame;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;

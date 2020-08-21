@@ -50,6 +50,9 @@
 	</target>
 	<target name="clean-all" depends="loadProperties" description="Cleans all temporary files including the reports">
 		<antcall target="core.fu.clean-all"/>
+		<delete file="adam_mc.jar" failonerror="false"/>
+		<delete file="adam_synt.jar" failonerror="false"/>
+		<delete file="adam_bounded.jar" failonerror="false"/>
 	</target>
 
     <target name="deploy" depends="clean-all" description="Builds a jar with all its dependencies for the webinterface">

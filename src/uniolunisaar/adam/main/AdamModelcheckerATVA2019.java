@@ -5,7 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import uniol.apt.adt.pn.PetriNet;
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.ds.logics.ltl.flowltl.RunFormula;
+import uniolunisaar.adam.ds.circuits.CircuitRendererSettings;
+import uniolunisaar.adam.ds.logics.ltl.flowltl.RunLTLFormula;
 import uniolunisaar.adam.ds.modelchecking.output.AdamCircuitFlowLTLMCOutputData;
 import uniolunisaar.adam.ds.modelchecking.statistics.AdamCircuitFlowLTLMCStatistics;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
@@ -14,11 +15,13 @@ import uniolunisaar.adam.exceptions.ProcessNotStartedException;
 import uniolunisaar.adam.exceptions.logics.NotConvertableException;
 import uniolunisaar.adam.logic.externaltools.modelchecking.Abc;
 import uniolunisaar.adam.logic.externaltools.modelchecking.Abc.VerificationAlgo;
-import uniolunisaar.adam.logic.modelchecking.circuits.ModelCheckerFlowLTL;
+import uniolunisaar.adam.logic.modelchecking.ltl.circuits.ModelCheckerFlowLTL;
 import uniolunisaar.adam.logic.parser.logics.flowltl.FlowLTLParser;
 import uniolunisaar.adam.tools.Tools;
 import uniolunisaar.adam.util.PNWTTools;
-import uniolunisaar.adam.ds.modelchecking.settings.AdamCircuitFlowLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ltl.AdamCircuitLTLMCSettings;
+import uniolunisaar.adam.ds.modelchecking.settings.ltl.AdamCircuitMCSettings;
+import uniolunisaar.adam.logic.transformers.pn2aiger.AigerRenderer;
 
 /**
  *
@@ -46,7 +49,7 @@ public class AdamModelcheckerATVA2019 {
 
         PetriNetWithTransits pnwt = PNWTTools.getPetriNetWithTransitsFromParsedPetriNet(net, false);
         String formula = (args[4].isEmpty()) ? (String) pnwt.getExtension("formula") : args[4];
-        RunFormula f = FlowLTLParser.parse(pnwt, formula);
+        RunLTLFormula f = FlowLTLParser.parse(pnwt, formula);
 
         String output = args[1];
 
@@ -80,15 +83,24 @@ public class AdamModelcheckerATVA2019 {
 
         String abcParameter = args[3];
 
-        AdamCircuitFlowLTLMCSettings settings = new AdamCircuitFlowLTLMCSettings();
-        if (algo != null) {
-            settings.setVerificationAlgo(algo);
+        AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(output, false, false, false);
+
+        AdamCircuitLTLMCSettings settings = new AdamCircuitLTLMCSettings(
+                data,
+                AdamCircuitMCSettings.Maximality.MAX_INTERLEAVING_IN_CIRCUIT,
+                AdamCircuitMCSettings.Stuttering.PREFIX_REGISTER,
+                CircuitRendererSettings.TransitionSemantics.OUTGOING,
+                CircuitRendererSettings.TransitionEncoding.LOGARITHMIC,
+                CircuitRendererSettings.AtomicPropositions.PLACES_AND_TRANSITIONS,
+                AigerRenderer.OptimizationsSystem.NONE, AigerRenderer.OptimizationsComplete.NONE,
+                algo);
+
+        if (algo == null) {
+            settings.setVerificationAlgo(new VerificationAlgo[]{VerificationAlgo.IC3});
         }
         settings.setAbcParameters(abcParameter);
-
-        AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(output, false, false, false);
-        settings.setOutputData(data);
         settings.setStatistics(stats);
+
         ModelCheckerFlowLTL mc = new ModelCheckerFlowLTL(settings);
         mc.check(pnwt, f);
         if (!args[5].isEmpty()) {

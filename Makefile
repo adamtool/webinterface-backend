@@ -1,9 +1,9 @@
 # dependencies (folders and repos should be equally ordered)
 #DEPENDENCIES_FOLDERS="libs,framework,logics,modelchecker,synthesizer,high-level"
-DEPENDENCIES_FOLDERS="libs,framework,logics,modelchecker,synthesizer"
+DEPENDENCIES_FOLDERS="libs,framework,logics,modelchecker,synthesizer,boundedSynthesis"
 #DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git,git@github.com:adamtool/high-level.git"
-DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git"
-DEPENDENCIES_REV="HEAD,HEAD,HEAD,HEAD,HEAD"
+DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git,git@github.com:adamtool/boundedSynthesis.git"
+DEPENDENCIES_REV="HEAD,HEAD,HEAD,HEAD,HEAD,HEAD"
 # the build target
 FRAMEWORK_TARGETS = tools petrinetwithtransits
 MODELCHECKING_TARGETS = logics mc
@@ -88,7 +88,7 @@ petrigames:
 	ant -buildfile ./dependencies/synthesizer/petriGames/build.xml $(t)
 
 bounded: check_dependencies
-	ant -buildfile ./dependencies/synthesizer/boundedalgorithms/build.xml $(t)
+	ant -buildfile ./dependencies/boundedSynthesis/build.xml $(t)
 
 bdd: check_dependencies
 	ant -buildfile ./dependencies/synthesizer/symbolicalgorithms/bddapproach/build.xml $(t)

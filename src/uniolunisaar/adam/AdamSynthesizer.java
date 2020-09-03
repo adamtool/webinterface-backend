@@ -30,9 +30,9 @@ import uniolunisaar.adam.generators.pg.Workflow;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolver;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.PGTools;
 
 /**
@@ -373,15 +373,15 @@ public class AdamSynthesizer {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphGame(net, win, so);
     }
 
-    public static BDDSolver<? extends Condition<?>> getBDDSolver(PetriGame game, Condition.Objective win, BDDSolverOptions so) throws SolvingException {
-        return BDDSolverFactory.getInstance().getSolver(game, win, so);
+    public static DistrSysBDDSolver<? extends Condition<?>> getBDDSolver(PetriGame game, Condition.Objective win, BDDSolverOptions so) throws SolvingException {
+        return DistrSysBDDSolverFactory.getInstance().getSolver(game, win, so);
     }
 
-    public static BDDState getInitialGraphGameState(BDDGraph graph, BDDSolver<? extends Condition<?>> solver) {
+    public static BDDState getInitialGraphGameState(BDDGraph graph, DistrSysBDDSolver<? extends Condition<?>> solver) {
         return BDDGraphGameBuilderStepwise.addInitialState(graph, solver);
     }
 
-    public static Pair<List<Flow>, List<BDDState>> getSuccessors(BDDState state, BDDGraph graph, BDDSolver<? extends Condition<?>> solver) {
+    public static Pair<List<Flow>, List<BDDState>> getSuccessors(BDDState state, BDDGraph graph, DistrSysBDDSolver<? extends Condition<?>> solver) {
         return BDDGraphGameBuilderStepwise.addSuccessors(state, graph, solver);
     }
 //

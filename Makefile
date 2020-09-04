@@ -9,7 +9,7 @@ FRAMEWORK_TARGETS = tools petrinetwithtransits
 MODELCHECKING_TARGETS = logics mc
 #SYNTHESIZER_TARGETS = petrigames symbolic bounded highlevel
 SYNTHESIZER_TARGETS = petrigames symbolic bounded 
-t=jar
+t=javac
 
 
 # should be executed no matter if a file with the same name exists or not
@@ -32,6 +32,8 @@ t=jar
 .PHONY: synt_deploy_noUI
 .PHONY: bounded_deploy_noUI
 #.PHONY: javadoc
+.PHONY: setJavac
+.PHONY: setJar
 .PHONY: setDeploy
 .PHONY: setStandalone
 .PHONY: setClean
@@ -103,6 +105,9 @@ symbolic: bdd mtbdd
 
 backend:
 	ant -buildfile ./build.xml $(t)
+
+setJavac:
+	$(eval t=javac)
 
 setClean:
 	$(eval t=clean)

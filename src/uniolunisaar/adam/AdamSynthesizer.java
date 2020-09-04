@@ -28,11 +28,11 @@ import uniolunisaar.adam.generators.pg.SelfOrganizingRobots;
 import uniolunisaar.adam.generators.pg.Watchdog;
 import uniolunisaar.adam.generators.pg.Workflow;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
-import uniolunisaar.adam.logic.pg.builder.graph.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
+import uniolunisaar.adam.logic.distrsynt.builder.graph.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
-import uniolunisaar.adam.logic.pg.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.PGTools;
 
 /**

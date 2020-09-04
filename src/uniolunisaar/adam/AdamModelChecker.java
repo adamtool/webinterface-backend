@@ -204,7 +204,20 @@ public class AdamModelChecker {
                 default:
                     throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
             }
-        } else {
+        } else if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL_INHIBITOR) {
+            if (null == settings.getRendererSettings().getSemantics()) {
+                throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+            } else {
+                switch (settings.getRendererSettings().getSemantics()) {
+                    case OUTGOING:
+                        return new FlowLTLTransformerOutgoingParallel().createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f, settings);
+                    case INGOING:
+                        return new FlowLTLTransformerIngoingParallel().createFormula4ModelChecking4CircuitParallel(originalNet, modelCheckingNet, f, settings);
+                    default:
+                        throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+                }
+            }
+        } else if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL) {
             if (null == settings.getRendererSettings().getSemantics()) {
                 throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
             } else {
@@ -217,6 +230,21 @@ public class AdamModelChecker {
                         throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
                 }
             }
+        }else if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
+            if (null == settings.getRendererSettings().getSemantics()) {
+                throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+            } else {
+                switch (settings.getRendererSettings().getSemantics()) {
+                    case OUTGOING:
+                        return new FlowLTLTransformerOutgoingSequential().createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, settings);
+                    case INGOING:
+                        return new FlowLTLTransformerIngoingSequential().createFormula4ModelChecking4CircuitSequential(originalNet, modelCheckingNet, f, settings);
+                    default:
+                        throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+                }
+            }
+        } else {
+              throw new RuntimeException("Didn't provided a solution for all approaches yet. Approach '" + settings.getAbcSettings() + "' is missing; sry.");
         }
     }
 

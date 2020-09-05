@@ -5,12 +5,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import uniol.apt.io.parser.ParseException;
-import uniolunisaar.adam.bounded.qbfapproach.solver.QbfSolver;
-import uniolunisaar.adam.bounded.qbfapproach.solver.QbfSolverFactory;
-import uniolunisaar.adam.bounded.qbfapproach.solver.QbfSolverOptions;
-import uniolunisaar.adam.bounded.qbfconcurrent.solver.QbfConSolver;
-import uniolunisaar.adam.bounded.qbfconcurrent.solver.QbfConSolverFactory;
-import uniolunisaar.adam.bounded.qbfconcurrent.solver.QbfConSolverOptions;
+import uniolunisaar.adam.logic.synthesis.solver.bounded.qbfapproach.QbfSolver;
+import uniolunisaar.adam.logic.synthesis.solver.bounded.qbfapproach.QbfSolverFactory;
+import uniolunisaar.adam.ds.synthesis.solver.bounded.qbfapproach.QbfSolverOptions;
+import uniolunisaar.adam.logic.synthesis.solver.bounded.qbfconcurrent.QbfConSolver;
+import uniolunisaar.adam.logic.synthesis.solver.bounded.qbfconcurrent.QbfConSolverFactory;
+import uniolunisaar.adam.ds.synthesis.solver.bounded.qbfconcurrent.QbfConSolverOptions;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;

@@ -8,29 +8,29 @@ import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
-import uniolunisaar.adam.exceptions.pg.NoStrategyExistentException;
-import uniolunisaar.adam.exceptions.pg.NoSuitableDistributionFoundException;
-import uniolunisaar.adam.exceptions.pg.NotSupportedGameException;
-import uniolunisaar.adam.exceptions.pg.ParameterMissingException;
-import uniolunisaar.adam.exceptions.pg.SolvingException;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.NotSupportedGameException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.ParameterMissingException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.exceptions.pg.CalculationInterruptedException;
-import uniolunisaar.adam.exceptions.pg.CouldNotCalculateException;
-import uniolunisaar.adam.generators.pg.CarRouting;
-import uniolunisaar.adam.generators.pg.Clerks;
-import uniolunisaar.adam.generators.pg.ContainerTerminal;
-import uniolunisaar.adam.generators.pg.EmergencyBreakdown;
-import uniolunisaar.adam.generators.pg.LoopUnrolling;
-import uniolunisaar.adam.generators.pg.ManufactorySystem;
-import uniolunisaar.adam.generators.pg.SecuritySystem;
-import uniolunisaar.adam.generators.pg.SelfOrganizingRobots;
-import uniolunisaar.adam.generators.pg.Watchdog;
-import uniolunisaar.adam.generators.pg.Workflow;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotCalculateException;
+import uniolunisaar.adam.generators.pgwt.CarRouting;
+import uniolunisaar.adam.generators.pgwt.Clerks;
+import uniolunisaar.adam.generators.pgwt.ContainerTerminal;
+import uniolunisaar.adam.generators.pgwt.EmergencyBreakdown;
+import uniolunisaar.adam.generators.pgwt.LoopUnrolling;
+import uniolunisaar.adam.generators.pgwt.ManufactorySystem;
+import uniolunisaar.adam.generators.pgwt.SecuritySystem;
+import uniolunisaar.adam.generators.pgwt.SelfOrganizingRobots;
+import uniolunisaar.adam.generators.pgwt.Watchdog;
+import uniolunisaar.adam.generators.pgwt.Workflow;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDGraph;
 import uniolunisaar.adam.logic.distrsynt.builder.graph.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
 import uniolunisaar.adam.ds.graph.symbolic.bddapproach.BDDState;
-import uniolunisaar.adam.ds.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.logic.distrsynt.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.PGTools;
@@ -51,8 +51,8 @@ public class AdamSynthesizer {
      * @return
      * @throws ModuleException
      */
-    public static PetriGame genCarRouting(int nb_routes, int nb_cars, String version, boolean withPartition) throws ModuleException {
-        PetriGame game;
+    public static PetriGameWithTransits genCarRouting(int nb_routes, int nb_cars, String version, boolean withPartition) throws ModuleException {
+        PetriGameWithTransits game;
         if (version.equals("A")) {
             game = CarRouting.createAReachabilityVersion(nb_routes, nb_cars, withPartition);
         } else if (version.equals("E")) {
@@ -74,8 +74,8 @@ public class AdamSynthesizer {
      * @return
      * @throws ModuleException
      */
-    public static PetriGame genConcurrentMaschines(int nb_machines, int nb_workpieces, String version, boolean withPartition) throws ModuleException {
-        PetriGame game;
+    public static PetriGameWithTransits genConcurrentMaschines(int nb_machines, int nb_workpieces, String version, boolean withPartition) throws ModuleException {
+        PetriGameWithTransits game;
         if (version.equals("CAV15")) {
             game = Workflow.generateNewAnnotationPoster(nb_machines, nb_workpieces, withPartition, false);
         } else if (version.equals("BJ19")) {
@@ -92,8 +92,8 @@ public class AdamSynthesizer {
      * @param withPartition
      * @return
      */
-    public static PetriGame genContainerTerminal(int nb_systems, boolean withPartition) {
-        PetriGame game = ContainerTerminal.createSafetyVersion(nb_systems, withPartition);
+    public static PetriGameWithTransits genContainerTerminal(int nb_systems, boolean withPartition) {
+        PetriGameWithTransits game = ContainerTerminal.createSafetyVersion(nb_systems, withPartition);
         return game;
     }
 
@@ -104,8 +104,8 @@ public class AdamSynthesizer {
      * @param withPartition
      * @return
      */
-    public static PetriGame genDocumentWorkflow(int nb_clerks, boolean allyes, boolean withPartition) {
-        PetriGame game = allyes ? Clerks.generateCP(nb_clerks, withPartition, false)
+    public static PetriGameWithTransits genDocumentWorkflow(int nb_clerks, boolean allyes, boolean withPartition) {
+        PetriGameWithTransits game = allyes ? Clerks.generateCP(nb_clerks, withPartition, false)
                 : Clerks.generateNonCP(nb_clerks, withPartition, false);
         return game;
     }
@@ -118,8 +118,8 @@ public class AdamSynthesizer {
      * @param withPartition
      * @return
      */
-    public static PetriGame genEmergencyBreakdown(int nb_crit, int nb_norm, boolean withPartition) {
-        PetriGame game = EmergencyBreakdown.createSafetyVersion(nb_crit, nb_norm, withPartition);
+    public static PetriGameWithTransits genEmergencyBreakdown(int nb_crit, int nb_norm, boolean withPartition) {
+        PetriGameWithTransits game = EmergencyBreakdown.createSafetyVersion(nb_crit, nb_norm, withPartition);
         return game;
     }
 
@@ -129,8 +129,8 @@ public class AdamSynthesizer {
      * @param withPartition
      * @return
      */
-    public static PetriGame genJobProcessing(int nb_machines, boolean withPartition) {
-        PetriGame game = ManufactorySystem.generate(nb_machines, withPartition, false);
+    public static PetriGameWithTransits genJobProcessing(int nb_machines, boolean withPartition) {
+        PetriGameWithTransits game = ManufactorySystem.generate(nb_machines, withPartition, false);
         return game;
     }
 
@@ -141,7 +141,7 @@ public class AdamSynthesizer {
      * @param withPartition
      * @return
      */
-    public static PetriGame genLoopUnrolling(int nb_unrollings, boolean newChains, boolean withPartition) {
+    public static PetriGameWithTransits genLoopUnrolling(int nb_unrollings, boolean newChains, boolean withPartition) {
         return LoopUnrolling.createESafetyVersion(nb_unrollings, newChains, withPartition);
     }
 
@@ -153,8 +153,8 @@ public class AdamSynthesizer {
      * @return
      * @throws ModuleException
      */
-    public static PetriGame genSecuritySystem(int nb_systems, String version, boolean withPartition) throws ModuleException {
-        PetriGame game;
+    public static PetriGameWithTransits genSecuritySystem(int nb_systems, String version, boolean withPartition) throws ModuleException {
+        PetriGameWithTransits game;
         if (version.equals("S")) {
             game = SecuritySystem.createSafetyVersion(nb_systems, withPartition);
         } else if (version.equals("R")) {
@@ -174,8 +174,8 @@ public class AdamSynthesizer {
      * @param withPartition
      * @return
      */
-    public static PetriGame genSelfReconfiguringRobots(int nb_robots, int nb_destroy, boolean withPartition) {
-        PetriGame game = SelfOrganizingRobots.generate(nb_robots, nb_destroy, withPartition, false);
+    public static PetriGameWithTransits genSelfReconfiguringRobots(int nb_robots, int nb_destroy, boolean withPartition) {
+        PetriGameWithTransits game = SelfOrganizingRobots.generate(nb_robots, nb_destroy, withPartition, false);
         return game;
     }
 
@@ -187,16 +187,16 @@ public class AdamSynthesizer {
      * @param withPartition
      * @return
      */
-    public static PetriGame genWatchdog(int nb_machines, boolean search, boolean partial_observation, boolean withPartition) {
+    public static PetriGameWithTransits genWatchdog(int nb_machines, boolean search, boolean partial_observation, boolean withPartition) {
         return Watchdog.generate(nb_machines, search, partial_observation, withPartition);
     }
 
-    public static String getTikz(PetriGame game) {
+    public static String getTikz(PetriGameWithTransits game) {
         return PGTools.pg2Tikz(game);
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    public static PetriGame getPetriGame(String aptFile) throws NotSupportedGameException, ParseException, IOException, CouldNotFindSuitableConditionException, CouldNotCalculateException {
+    public static PetriGameWithTransits getPetriGame(String aptFile) throws NotSupportedGameException, ParseException, IOException, CouldNotFindSuitableConditionException, CouldNotCalculateException {
         return PGTools.getPetriGameFromAPTString(aptFile, false, true);
     }
 
@@ -231,7 +231,7 @@ public class AdamSynthesizer {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.existsWinningStrategy(path, so);
     }
 
-    public static boolean existsWinningStrategyBDD(PetriGame net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static boolean existsWinningStrategyBDD(PetriGameWithTransits net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.existsWinningStrategy(net);
     }
 
@@ -255,7 +255,7 @@ public class AdamSynthesizer {
      * @throws SolvingException
      * @throws CalculationInterruptedException
      */
-    public static boolean existsWinningStrategyBDD(PetriGame net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static boolean existsWinningStrategyBDD(PetriGameWithTransits net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.existsWinningStrategy(net, so);
     }
 
@@ -279,14 +279,14 @@ public class AdamSynthesizer {
      * @throws SolvingException
      * @throws CalculationInterruptedException 
      */
-    public static boolean existsWinningStrategyBDD(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static boolean existsWinningStrategyBDD(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.existsWinningStrategy(net, win, so);
     }
 
 //    public static boolean existsWinningStrategyBDD(PetriGame game, Condition win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParameterMissingException, ParseException {
 //        return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.existsWinningStrategy(game, win, so);
 //    }
-    public static PetriGame getStrategyBDD(String path) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategyBDD(String path) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategy(path);
     }
 
@@ -311,19 +311,19 @@ public class AdamSynthesizer {
      * @throws SolvingException
      * @throws CalculationInterruptedException 
      */
-    public static PetriGame getStrategyBDD(String path, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategyBDD(String path, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategy(path, so);
     }
 
-    public static PetriGame getStrategyBDD(PetriGame net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategyBDD(PetriGameWithTransits net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategy(net);
     }
 
-    public static PetriGame getStrategyBDD(PetriGame net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategyBDD(PetriGameWithTransits net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategy(net, so);
     }
 
-    public static PetriGame getStrategyBDD(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static PetriGameWithTransits getStrategyBDD(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategy(net, win, so);
     }
 
@@ -338,15 +338,15 @@ public class AdamSynthesizer {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphStrategy(path, so);
     }
 
-    public static BDDGraph getGraphStrategyBDD(PetriGame net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static BDDGraph getGraphStrategyBDD(PetriGameWithTransits net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphStrategy(net);
     }
 
-    public static BDDGraph getGraphStrategyBDD(PetriGame net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static BDDGraph getGraphStrategyBDD(PetriGameWithTransits net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphStrategy(net, so);
     }
 
-    public static BDDGraph getGraphStrategyBDD(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static BDDGraph getGraphStrategyBDD(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphStrategy(net, win, so);
     }
 
@@ -361,19 +361,19 @@ public class AdamSynthesizer {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphGame(path, so);
     }
 
-    public static BDDGraph getGraphGameBDD(PetriGame net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static BDDGraph getGraphGameBDD(PetriGameWithTransits net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphGame(net);
     }
 
-    public static BDDGraph getGraphGameBDD(PetriGame net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static BDDGraph getGraphGameBDD(PetriGameWithTransits net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphGame(net, so);
     }
 
-    public static BDDGraph getGraphGameBDD(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static BDDGraph getGraphGameBDD(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getGraphGame(net, win, so);
     }
 
-    public static DistrSysBDDSolver<? extends Condition<?>> getBDDSolver(PetriGame game, Condition.Objective win, BDDSolverOptions so) throws SolvingException {
+    public static DistrSysBDDSolver<? extends Condition<?>> getBDDSolver(PetriGameWithTransits game, Condition.Objective win, BDDSolverOptions so) throws SolvingException {
         return DistrSysBDDSolverFactory.getInstance().getSolver(game, win, so);
     }
 
@@ -389,7 +389,7 @@ public class AdamSynthesizer {
 //        return uniolunisaar.adam.symbolic.bddapproach.AdamBehavior.getGraphGame(game, win, so);
 //    }
 
-    public static Pair<BDDGraph, PetriGame> getStrategiesBDD(String path) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategiesBDD(String path) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategies(path);
     }
 
@@ -415,11 +415,11 @@ public class AdamSynthesizer {
      * @throws SolvingException
      * @throws CalculationInterruptedException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategiesBDD(String path, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategiesBDD(String path, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, ParseException, IOException, NoStrategyExistentException, ParameterMissingException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategies(path, so);
     }
 
-    public static Pair<BDDGraph, PetriGame> getStrategiesBDD(PetriGame net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategiesBDD(PetriGameWithTransits net) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategies(net);
     }
 
@@ -445,7 +445,7 @@ public class AdamSynthesizer {
      * @throws SolvingException
      * @throws CalculationInterruptedException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategiesBDD(PetriGame net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategiesBDD(PetriGameWithTransits net, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategies(net, so);
     }
 
@@ -471,7 +471,7 @@ public class AdamSynthesizer {
      * @throws SolvingException
      * @throws CalculationInterruptedException
      */
-    public static Pair<BDDGraph, PetriGame> getStrategiesBDD(PetriGame net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
+    public static Pair<BDDGraph, PetriGameWithTransits> getStrategiesBDD(PetriGameWithTransits net, Condition.Objective win, BDDSolverOptions so) throws CouldNotFindSuitableConditionException, NotSupportedGameException, NetNotSafeException, NoSuitableDistributionFoundException, NoStrategyExistentException, ParameterMissingException, ParseException, SolvingException, CalculationInterruptedException {
         return uniolunisaar.adam.behavior.AdamSynthesisBDDBehavior.getStrategies(net, win, so);
     }
 

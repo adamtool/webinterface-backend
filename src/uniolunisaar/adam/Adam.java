@@ -3,7 +3,7 @@ package uniolunisaar.adam;
 import java.io.PrintStream;
 import uniol.apt.io.renderer.RenderException;
 import uniolunisaar.adam.ds.objectives.Condition;
-import uniolunisaar.adam.ds.petrigame.PetriGame;
+import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
 import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.tools.Logger;
@@ -16,11 +16,11 @@ import uniolunisaar.adam.util.PNWTTools;
 public class Adam {
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% EXPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    public static String getAPT(PetriGame net) throws RenderException {
+    public static String getAPT(PetriGameWithTransits net) throws RenderException {
         return PNWTTools.getAPT(net, true, true);
     }
 
-    public static String getDot(PetriGame game, boolean withLabels) {
+    public static String getDot(PetriGameWithTransits game, boolean withLabels) {
         return PNWTTools.pnwt2Dot(game, withLabels);
     }
 

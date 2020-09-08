@@ -1,9 +1,11 @@
+## @author Manuel Gieseking
+
 # dependencies (folders and repos should be equally ordered)
 #DEPENDENCIES_FOLDERS="libs,framework,logics,modelchecker,synthesizer,high-level"
-DEPENDENCIES_FOLDERS="libs,framework,logics,modelchecker,synthesizer,boundedSynthesis"
+DEPENDENCIES_FOLDERS="libs,examples,framework,logics,modelchecker,synthesizer,boundedSynthesis"
 #DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git,git@github.com:adamtool/high-level.git"
-DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git,git@github.com:adamtool/boundedSynthesis.git"
-DEPENDENCIES_REV="HEAD,HEAD,HEAD,HEAD,HEAD,HEAD"
+DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/examples.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git,git@github.com:adamtool/boundedSynthesis.git"
+DEPENDENCIES_REV="HEAD,HEAD,HEAD,HEAD,HEAD,HEAD,HEAD"
 # the build target
 FRAMEWORK_TARGETS = tools petrinetwithtransits
 MODELCHECKING_TARGETS = logics mc
@@ -64,7 +66,7 @@ endef
 all: backend_deploy
 
 check_dependencies:
-	if [ ! -d "dependencies" ]; then \
+	@if [ ! -d "dependencies" ]; then \
 		echo "The dependencies folder is missing. Please execute make pull_dependencies first.";\
 	fi
 
@@ -72,7 +74,7 @@ pull_dependencies:
 	./pull_dependencies.sh ${DEPENDENCIES_FOLDERS} ${DEPENDENCIES_REPOS} ${DEPENDENCIES_REV}
 
 rm_dependencies:
-	rm -rf dependencies
+	$(RM) -rf dependencies
 
 tools: check_dependencies
 	ant -buildfile ./dependencies/framework/tools/build.xml $(t)
@@ -86,7 +88,7 @@ logics: check_dependencies
 mc: check_dependencies
 	ant -buildfile ./dependencies/modelchecker/build.xml $(t)
 
-petrigames:
+petrigames: check_dependencies
 	ant -buildfile ./dependencies/synthesizer/petriGames/build.xml $(t)
 
 bounded: check_dependencies
@@ -103,7 +105,7 @@ symbolic: bdd mtbdd
 #highlevel: check_dependencies
 #	ant -buildfile ./dependencies/high-level/build.xml $(t)
 
-backend:
+backend: check_dependencies
 	ant -buildfile ./build.xml $(t)
 
 setJavac:
@@ -163,12 +165,12 @@ bounded_deploy_noUI: $(FRAMEWORK_TARGETS) petrigames bounded setDeployBounded ba
 	cp ./ADAM.properties ./deploy/ADAM.properties
 
 clean: setClean $(FRAMEWORK_TARGETS) $(MODELCHECKING_TARGETS) $(SYNTHESIZER_TARGETS) backend
-	rm -r -f deploy
-	rm -r -f javadoc
+	$(RM) -r -f deploy
+	$(RM) -r -f javadoc
 
 clean-all: setCleanAll $(FRAMEWORK_TARGETS) $(MODELCHECKING_TARGETS) $(SYNTHESIZER_TARGETS) backend 
-	rm -r -f deploy
-	rm -r -f javadoc
+	$(RM) -r -f deploy
+	$(RM)-r -f javadoc
 
 #javadoc:
 #	ant javadoc
@@ -178,12 +180,3 @@ src_withlibs: clean-all
 
 src: clean-all
 	$(call generate_src, false)
-
-examples:
-	mkdir -p examples_tmp
-	for i in $$(find ./examples -regex '.*\.\(apt\|${withSuff}\)' ); do \
-		echo "cp" $$i; \
-		cp --parent $$i ./examples_tmp/ ;\
-	done
-	tar -zcf adam_examples.tar.gz examples_tmp/examples
-	rm -r -f ./examples_tmp

@@ -135,51 +135,80 @@ public class AdamModelChecker {
     /**
      * Returns a Petri net which is created from the given name (and if
      * !parallel) from the formula which can be used to do standard LTL model
-     * checking on Petri nets.If parallel is set the parallel algorithm is used,
-     * which is only implemented for one flow formula.Otherwise the sequential
-     * approach is used.
+     * checking on Petri nets. If parallel is set the parallel algorithm is
+     * used, which is only implemented for one flow formula.Otherwise the
+     * sequential approach is used.
      *
      *
      * @param net
      * @param f
      * @param settings
      * @return
+     * @throws uniolunisaar.adam.exceptions.logics.NotConvertableException
      */
-    public static PetriNet getModelCheckingNet(PetriNetWithTransits net, RunLTLFormula f, AdamCircuitFlowLTLMCSettings settings) {
+    public static PetriNet getModelCheckingNet(PetriNetWithTransits net, RunLTLFormula f, AdamCircuitFlowLTLMCSettings settings) throws NotConvertableException {
         if (isLTLFormula(f)) {
             return net;
         }
-        PetriNet mcNet;
-        if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL) {
-// todo:                throw new NotConvertableException("The parallel approach (without inhibitor arcs) is not implemented for more than one flow subformula!. Please use another approach.");
-            if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
-                mcNet= PnwtAndNbFlowFormulas2PNParallelNoInit.createNet4ModelCheckingParallelOneFlowFormula(net);
-            } else {
-                mcNet= PnwtAndNbFlowFormulas2PNParallel.createNet4ModelCheckingParallelOneFlowFormula(net);
-            }
-        } else if (settings.getApproach() == ModelCheckingSettings.Approach.PARALLEL_INHIBITOR) {
-            if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
-                mcNet= PnwtAndNbFlowFormulas2PNParInhibitorNoInit.createNet4ModelCheckingParallelOneFlowFormula(net);
-            } else {
-                mcNet= PnwtAndNbFlowFormulas2PNParallelInhibitor.createNet4ModelCheckingParallelOneFlowFormula(net);
-            }
-        } else {
-            List<FlowLTLFormula> flowLTLFormulas = LogicsTools.getFlowLTLFormulas(f);
-            if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
-                if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
-                    mcNet= PnwtAndNbFlowFormulas2PNSeqInhibitorNoInit.createNet4ModelCheckingSequential(net, flowLTLFormulas.size());
-                } else {
-                    mcNet= PnwtAndNbFlowFormulas2PNSequentialInhibitor.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
+        ModelCheckingSettings.Approach approach = settings.getApproach();
+        CircuitRendererSettings.TransitionSemantics semantics = settings.getRendererSettings().getSemantics();
+        List<FlowLTLFormula> flowFormulas = LogicsTools.getFlowLTLFormulas(f);
+        PetriNet netMC;
+        switch (approach) {
+            case PARALLEL:
+                if (flowFormulas.size() > 1) {
+                    throw new NotConvertableException("The parallel approach (without inhibitor arcs) is not implemented for more than one flow subformula!."
+                            + " Please use another approach.");
                 }
+                if (semantics == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                    netMC = PnwtAndNbFlowFormulas2PNParallelNoInit.createNet4ModelCheckingParallelOneFlowFormula(net);
+                } else if (semantics == CircuitRendererSettings.TransitionSemantics.OUTGOING) {
+                    netMC = PnwtAndNbFlowFormulas2PNParallel.createNet4ModelCheckingParallelOneFlowFormula(net);
+                } else {
+                    throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+                }
+                break;
+            case PARALLEL_INHIBITOR:
+                if (semantics == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                    if (flowFormulas.size() == 1) { // take the special case (todo: check if this has any advantages compared to the general one)
+                        netMC = PnwtAndNbFlowFormulas2PNParInhibitorNoInit.createNet4ModelCheckingParallelOneFlowFormula(net);
+                    } else {
+                        netMC = PnwtAndNbFlowFormulas2PNParInhibitorNoInit.createNet4ModelCheckingParallel(net, flowFormulas.size());
+                    }
+                } else if (semantics == CircuitRendererSettings.TransitionSemantics.OUTGOING) {
+                    if (flowFormulas.size() == 1) { // take the special case (todo: check if this has any advantages compared to the general one)
+                        netMC = PnwtAndNbFlowFormulas2PNParallelInhibitor.createNet4ModelCheckingParallelOneFlowFormula(net);
+                    } else {
+                        netMC = PnwtAndNbFlowFormulas2PNParallelInhibitor.createNet4ModelCheckingParallel(net, flowFormulas.size());
+                    }
+                } else {
+                    throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+                }
+                break;
+            case SEQUENTIAL: {
+                if (semantics == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                    netMC = PnwtAndNbFlowFormulas2PNSequentialNoInit.createNet4ModelCheckingSequential(net, flowFormulas.size());
+                } else if (semantics == CircuitRendererSettings.TransitionSemantics.OUTGOING) {
+                    netMC = PnwtAndNbFlowFormulas2PNSequential.createNet4ModelCheckingSequential(net, flowFormulas.size(), true);
+                } else {
+                    throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+                }
+                break;
             }
-            if (settings.getRendererSettings().getSemantics() == CircuitRendererSettings.TransitionSemantics.INGOING) {
-                mcNet= PnwtAndNbFlowFormulas2PNSequentialNoInit.createNet4ModelCheckingSequential(net, flowLTLFormulas.size());
-            } else {
-                mcNet= PnwtAndNbFlowFormulas2PNSequential.createNet4ModelCheckingSequential(net, flowLTLFormulas.size(), true);
-            }
-        }        
-        MCTools.addCoordinates(net,mcNet);
-        return mcNet;
+            case SEQUENTIAL_INHIBITOR:
+                if (semantics == CircuitRendererSettings.TransitionSemantics.INGOING) {
+                    netMC = PnwtAndNbFlowFormulas2PNSeqInhibitorNoInit.createNet4ModelCheckingSequential(net, flowFormulas.size());
+                } else if (semantics == CircuitRendererSettings.TransitionSemantics.OUTGOING) {
+                    netMC = PnwtAndNbFlowFormulas2PNSequentialInhibitor.createNet4ModelCheckingSequential(net, flowFormulas.size(), true);
+                } else {
+                    throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
+                }
+                break;
+            default:
+                throw new RuntimeException("Didn't provide a solution for all approaches yet. Approach '" + approach + "' is missing; sry.");
+        }
+        MCTools.addCoordinates(net, netMC);
+        return netMC;
     }
 
     /**
@@ -234,7 +263,7 @@ public class AdamModelChecker {
                         throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
                 }
             }
-        }else if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
+        } else if (settings.getApproach() == ModelCheckingSettings.Approach.SEQUENTIAL_INHIBITOR) {
             if (null == settings.getRendererSettings().getSemantics()) {
                 throw new RuntimeException("The transitions semantics: '" + settings.getRendererSettings().getSemantics() + "' is not yet implemented.");
             } else {
@@ -248,7 +277,7 @@ public class AdamModelChecker {
                 }
             }
         } else {
-              throw new RuntimeException("Didn't provided a solution for all approaches yet. Approach '" + settings.getAbcSettings() + "' is missing; sry.");
+            throw new RuntimeException("Didn't provided a solution for all approaches yet. Approach '" + settings.getAbcSettings() + "' is missing; sry.");
         }
     }
 

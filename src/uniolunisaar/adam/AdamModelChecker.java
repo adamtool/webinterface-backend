@@ -92,7 +92,7 @@ public class AdamModelChecker {
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% IMPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     public static PetriNetWithTransits getPetriNetWithTransits(String aptFile) throws ParseException, IOException {
-        return PNWTTools.getPetriNetWithTransits(aptFile, true);
+        return PNWTTools.getPetriNetWithTransits(aptFile, false);
     }
 
     /**

@@ -170,7 +170,7 @@ clean: setClean $(FRAMEWORK_TARGETS) $(MODELCHECKING_TARGETS) $(SYNTHESIZER_TARG
 
 clean-all: setCleanAll $(FRAMEWORK_TARGETS) $(MODELCHECKING_TARGETS) $(SYNTHESIZER_TARGETS) backend 
 	$(RM) -r -f deploy
-	$(RM)-r -f javadoc
+	$(RM) -r -f javadoc
 
 #javadoc:
 #	ant javadoc

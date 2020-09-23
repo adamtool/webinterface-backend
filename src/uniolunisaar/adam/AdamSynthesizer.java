@@ -6,7 +6,7 @@ import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoSuitableDistributionFoundException;

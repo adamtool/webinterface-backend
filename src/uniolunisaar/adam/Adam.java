@@ -5,8 +5,9 @@ import uniol.apt.io.renderer.RenderException;
 import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.ds.synthesis.pgwt.PetriGameWithTransits;
 import uniolunisaar.adam.ds.petrinetwithtransits.PetriNetWithTransits;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.tools.Logger;
+import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PNWTTools;
 
 /**
@@ -25,7 +26,7 @@ public class Adam {
     }
 
     public static Condition.Objective getCondition(PetriNetWithTransits net) throws CouldNotFindSuitableConditionException {
-        return PNWTTools.parseConditionFromNetExtensionText(net);
+        return PGTools.parseConditionFromNetExtensionText(net);
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%% LOGGER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

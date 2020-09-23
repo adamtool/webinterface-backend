@@ -15,7 +15,7 @@ import uniolunisaar.adam.ds.objectives.Condition;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CalculationInterruptedException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.SolvingException;
-import uniolunisaar.adam.exceptions.pnwt.CouldNotFindSuitableConditionException;
+import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.util.PGTools;
 
 /**

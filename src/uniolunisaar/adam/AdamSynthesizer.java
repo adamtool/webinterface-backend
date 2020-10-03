@@ -34,12 +34,17 @@ import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptio
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
 import uniolunisaar.adam.util.PGTools;
+import uniolunisaar.adam.util.PgwtPreconditionChecker;
 
 /**
  *
  * @author Manuel Gieseking
  */
 public class AdamSynthesizer {
+
+    public static PgwtPreconditionChecker createPreconditionChecker(PetriGameWithTransits pgwt) {
+        return new PgwtPreconditionChecker(pgwt);
+    }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%   
     /**

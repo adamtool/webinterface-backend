@@ -38,7 +38,7 @@ import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.withoutinittfl
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.withoutinittflplaces.PnwtAndNbFlowFormulas2PNSeqInhibitorNoInit;
 import uniolunisaar.adam.logic.transformers.modelchecking.pnwt2pn.withoutinittflplaces.PnwtAndNbFlowFormulas2PNSequentialNoInit;
 import uniolunisaar.adam.util.MCTools;
-import uniolunisaar.adam.util.PreconditionChecker;
+import uniolunisaar.adam.util.PnwtPreconditionChecker;
 import uniolunisaar.adam.util.logics.LogicsTools;
 
 /**
@@ -47,8 +47,8 @@ import uniolunisaar.adam.util.logics.LogicsTools;
  */
 public class AdamModelChecker {
 
-    public static PreconditionChecker createPreconditionChecker(PetriNetWithTransits pnwt) {
-        return new PreconditionChecker(pnwt);
+    public static PnwtPreconditionChecker createPreconditionChecker(PetriNetWithTransits pnwt) {
+        return new PnwtPreconditionChecker(pnwt);
     }
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% GENERATORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

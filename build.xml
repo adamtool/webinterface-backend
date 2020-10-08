@@ -116,19 +116,4 @@
 		</jar>	
 	</target>
 
-	<target name="deploy_bounded" depends="clean-all" description="Builds a jar with all its dependencies for the bounded approach">
-        <antcall target="jar-standalone">
-            <param name="libFile" value="libsBounded.res"/>
-        </antcall>
-		
-		<jar destfile="adam_bounded.jar">
-			<zipfileset includes="**/*.class" src="./adam_core-standalone.jar"
-                  excludes="**/circuits/**, **/graph/**, **/generators/**,
-                            **/Adam.class, **/AdamModelChecker.class, **/AdamSynthesizer.class"/>
-			<zipfileset includes="**/*.stg" src="./adam_core-standalone.jar"/>
-			<manifest>
-				<attribute name="Main-Class" value="uniolunisaar.adam.main.AdamBounded"/>
-			</manifest>
-		</jar>	
-	</target>
 </project>

@@ -2,15 +2,15 @@
 
 # dependencies (folders and repos should be equally ordered)
 #DEPENDENCIES_FOLDERS="libs,framework,logics,modelchecker,synthesizer,high-level"
-DEPENDENCIES_FOLDERS="libs,examples,framework,logics,modelchecker,synthesizer,boundedSynthesis"
+DEPENDENCIES_FOLDERS="libs,examples,framework,logics,modelchecker,synthesizer"
 #DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git,git@github.com:adamtool/high-level.git"
-DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/examples.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git,git@github.com:adamtool/boundedSynthesis.git"
-DEPENDENCIES_REV="HEAD,HEAD,HEAD,HEAD,HEAD,HEAD,HEAD"
+DEPENDENCIES_REPOS="git@github.com:adamtool/libs.git,git@github.com:adamtool/examples.git,git@github.com:adamtool/framework.git,git@github.com:adamtool/logics.git,git@github.com:adamtool/modelchecker.git,git@github.com:adamtool/synthesizer.git"
+DEPENDENCIES_REV="HEAD,HEAD,HEAD,HEAD,HEAD,HEAD"
 # the build target
 FRAMEWORK_TARGETS = tools petrinetwithtransits
 MODELCHECKING_TARGETS = logics mc
-#SYNTHESIZER_TARGETS = petrigames symbolic bounded highlevel
-SYNTHESIZER_TARGETS = petrigames symbolic bounded 
+#SYNTHESIZER_TARGETS = petrigames symbolic highlevel
+SYNTHESIZER_TARGETS = petrigames symbolic 
 t=javac
 
 
@@ -23,7 +23,6 @@ t=javac
 .PHONY: logics
 .PHONY: mc
 .PHONY: petrigames
-.PHONY: bounded
 .PHONY: symbolic
 .PHONY: bdd
 .PHONY: mtbdd
@@ -32,7 +31,6 @@ t=javac
 .PHONY: backend_deploy
 .PHONY: mc_deploy_noUI
 .PHONY: synt_deploy_noUI
-.PHONY: bounded_deploy_noUI
 #.PHONY: javadoc
 .PHONY: setJavac
 .PHONY: setJar
@@ -91,9 +89,6 @@ mc: check_dependencies
 petrigames: check_dependencies
 	ant -buildfile ./dependencies/synthesizer/petriGames/build.xml $(t)
 
-bounded: check_dependencies
-	ant -buildfile ./dependencies/boundedSynthesis/build.xml $(t)
-
 bdd: check_dependencies
 	ant -buildfile ./dependencies/synthesizer/symbolicalgorithms/bddapproach/build.xml $(t)
 
@@ -126,9 +121,6 @@ setDeployMC:
 setDeploySynt:
 	$(eval t=deploy_synth)
 
-setDeployBounded:
-	$(eval t=deploy_bounded)
-
 setStandalone:
 	$(eval t=jar-standalone)
 
@@ -156,13 +148,6 @@ synt_deploy_noUI: $(FRAMEWORK_TARGETS) $(SYNTHESIZER_TARGETS) setDeploySynt back
 	cp ./dependencies/libs/quabs_unix ./deploy/lib/quabs_unix
 	cp ./dependencies/libs/javaBDD/libcudd.so ./deploy/lib/libcudd.so
 	cp ./dependencies/libs/javaBDD/libbuddy.so ./deploy/lib/libbuddy.so
-
-bounded_deploy_noUI: $(FRAMEWORK_TARGETS) petrigames bounded setDeployBounded backend
-	mkdir -p deploy
-	echo "$(call create_bashscript, _bounded)" > ./deploy/adam_bounded
-	chmod +x ./deploy/adam_bounded
-	cp ./adam_bounded.jar ./deploy/Adam_bounded.jar
-	cp ./ADAM.properties ./deploy/ADAM.properties
 
 clean: setClean $(FRAMEWORK_TARGETS) $(MODELCHECKING_TARGETS) $(SYNTHESIZER_TARGETS) backend
 	$(RM) -r -f deploy

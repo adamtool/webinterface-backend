@@ -6,6 +6,7 @@ import uniol.apt.io.parser.ParseException;
 import uniol.apt.module.exception.ModuleException;
 import uniol.apt.util.Pair;
 import uniolunisaar.adam.ds.graph.Flow;
+import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.explicit.DecisionSet;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.CouldNotFindSuitableConditionException;
 import uniolunisaar.adam.exceptions.pnwt.NetNotSafeException;
 import uniolunisaar.adam.exceptions.synthesis.pgwt.NoStrategyExistentException;
@@ -31,8 +32,10 @@ import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.B
 import uniolunisaar.adam.logic.synthesis.builder.twoplayergame.symbolic.bddapproach.BDDGraphGameBuilderStepwise;
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
+import uniolunisaar.adam.logic.synthesis.builder.twoplayergame.explicit.GGBuilder;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
 import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.util.ExplicitBDDGraphTransformer;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PgwtPreconditionChecker;
 
@@ -384,8 +387,20 @@ public class AdamSynthesizer {
         return DistrSysBDDSolverFactory.getInstance().getSolver(game, win, so);
     }
 
-    public static BDDState getInitialGraphGameState(BDDGraph graph, DistrSysBDDSolver<? extends Condition<?>> solver) {
+    public static BDDState getInitialGraphGameStateBDD(BDDGraph graph, DistrSysBDDSolver<? extends Condition<?>> solver) {
         return BDDGraphGameBuilderStepwise.addInitialState(graph, solver);
+    }
+
+    public static Pair<List<Flow>, List<BDDState>> getSuccessorsBDD(BDDState state, BDDGraph graph, DistrSysBDDSolver<? extends Condition<?>> solver) {
+        return BDDGraphGameBuilderStepwise.addSuccessors(state, graph, solver);
+    }
+
+    // the explicit versions
+    public static BDDState getInitialGraphGameState(PetriGameWithTransits pg) {
+        DecisionSet init = GGBuilder.getInstance().createInitDecisionSet(pg);
+        BDDState bddstate = ExplicitBDDGraphTransformer.decisionset2BDDState(init);
+        bddstate.putExtension("dcs", init);
+        return bddstate;
     }
 
     public static Pair<List<Flow>, List<BDDState>> getSuccessors(BDDState state, BDDGraph graph, DistrSysBDDSolver<? extends Condition<?>> solver) {

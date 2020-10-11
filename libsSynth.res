@@ -3,6 +3,7 @@ ${frameworkfolder}/petrinetWithTransits/classes
 ${dependenciesfolder}/synthesizer/petriGames/classes
 ${dependenciesfolder}/synthesizer/symbolicalgorithms/bddapproach/classes
 ${dependenciesfolder}/synthesizer/symbolicalgorithms/mtbddapproach/classes
+${dependenciesfolder}/high-level/classes
 ${libfolder}/apt/apt4adam.jar
 ${libfolder}/adam_protocol.jar
 ${libfolder}/antlr-4.5.1/antlr-4.5.1-complete.jar

@@ -36,6 +36,14 @@ public class TestingMCFormulaCreation {
         (new File(outputDir)).mkdirs();
     }
 
+    /**
+     * 
+     * @param net
+     * @param formula
+     * @return
+     * @throws ParseException
+     * @throws NotConvertableException 
+     */
     public ILTLFormula createLTLFormula(PetriNetWithTransits net, String formula) throws ParseException, NotConvertableException {
         RunLTLFormula runFormula = AdamModelChecker.parseFlowLTLFormula(net, formula);
         AdamCircuitFlowLTLMCOutputData data = new AdamCircuitFlowLTLMCOutputData(
@@ -49,7 +57,7 @@ public class TestingMCFormulaCreation {
                 net, modelCheckingNet, runFormula, settings);
     }
 
-    @Test
+    @Test(enabled=true)
     public void testMCFormulaCreation() throws ParseException, IOException, NotConvertableException {
         String path = inputDir + "ATVA19_motivatingExample.apt";
         PetriNetWithTransits net = PNWTTools.getPetriNetWithTransitsFromFile(path, false);

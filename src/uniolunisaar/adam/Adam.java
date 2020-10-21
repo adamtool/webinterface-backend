@@ -20,15 +20,15 @@ import uniolunisaar.adam.util.PNWTTools;
 public class Adam {
 
     // %%%%%%%%%%%%%%%%%%%%%%%%%%%% EXPORTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    public String pn2pnml(PetriNet net) throws RenderException {
+    public static String pn2pnml(PetriNet net) throws RenderException {
         return PNTools.pn2pnml(net);
     }
 
-    public void save2pnml(String path, PetriNet net) throws FileNotFoundException, RenderException {
+    public static void save2pnml(String path, PetriNet net) throws FileNotFoundException, RenderException {
         PNTools.save2pnml(path, net);
     }
 
-    public void save2pdf(String path, PetriNet net) throws FileNotFoundException, RenderException {
+    public static void save2pdf(String path, PetriNet net) throws FileNotFoundException, RenderException {
         PNTools.savePN2PDF(path, net, false, false);
     }
 

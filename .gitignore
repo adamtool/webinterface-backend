@@ -6,6 +6,9 @@ testOutput/
 testng.xml
 deploy/
 
+################## Texteditor related
+*~
+
 ################## JAVA related
 # Compiled class file
 *.class

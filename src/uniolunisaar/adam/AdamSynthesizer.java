@@ -33,8 +33,8 @@ import uniolunisaar.adam.logic.synthesis.builder.twoplayergame.symbolic.bddappro
 import uniolunisaar.adam.ds.graph.synthesis.twoplayergame.symbolic.bddapproach.BDDState;
 import uniolunisaar.adam.ds.synthesis.solver.symbolic.bddapproach.BDDSolverOptions;
 import uniolunisaar.adam.logic.synthesis.builder.twoplayergame.explicit.GGBuilder;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolverFactory;
-import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.DistrSysBDDSolver;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolverFactory;
+import uniolunisaar.adam.logic.synthesis.solver.symbolic.bddapproach.distrsys.mcutscheduling.safe.DistrSysBDDSolver;
 import uniolunisaar.adam.util.ExplicitBDDGraphTransformer;
 import uniolunisaar.adam.util.PGTools;
 import uniolunisaar.adam.util.PgwtPreconditionChecker;

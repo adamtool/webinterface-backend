@@ -4,6 +4,7 @@ ${dependenciesfolder}/synthesizer/petriGames/classes
 ${dependenciesfolder}/logics/classes
 ${dependenciesfolder}/modelchecker/classes
 ${dependenciesfolder}/synthesizer/symbolicalgorithms/bddapproach/classes
+${dependenciesfolder}/synthesisDistrEnv/classes
 ${dependenciesfolder}/high-level/classes
 ${libfolder}/commons-io-2.4/commons-io-2.4.jar
 ${libfolder}/apt/apt4adam.jar

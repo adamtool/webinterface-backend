@@ -1,13 +1,13 @@
 ## @author Manuel Gieseking
 
 # dependencies (folders and repos should be equally ordered)
-DEPENDENCIES_FOLDERS="libs,examples,framework,logics,modelchecker,synthesizer,high-level"
-DEPENDENCIES_REPOS="https://github.com/adamtool/libs.git,https://github.com/adamtool/examples.git,https://github.com/adamtool/framework.git,https://github.com/adamtool/logics.git,https://github.com/adamtool/modelchecker.git,https://github.com/adamtool/synthesizer.git,https://github.com/adamtool/high-level.git"
+DEPENDENCIES_FOLDERS="libs,examples,framework,logics,modelchecker,synthesizer,synthesisDistrEnv,high-level"
+DEPENDENCIES_REPOS="https://github.com/adamtool/libs.git,https://github.com/adamtool/examples.git,https://github.com/adamtool/framework.git,https://github.com/adamtool/logics.git,https://github.com/adamtool/modelchecker.git,https://github.com/adamtool/synthesizer.git,https://github.com/adamtool/synthesisDistrEnv.git,https://github.com/adamtool/high-level.git"
 DEPENDENCIES_REV="HEAD,HEAD,HEAD,HEAD,HEAD,HEAD,HEAD"
 # the build target
 FRAMEWORK_TARGETS = tools petrinetwithtransits
 MODELCHECKING_TARGETS = logics mc
-SYNTHESIZER_TARGETS = petrigames symbolic highlevel
+SYNTHESIZER_TARGETS = petrigames symbolic synthesisDistrEnv highlevel
 t=javac
 
 
@@ -23,6 +23,7 @@ t=javac
 .PHONY: symbolic
 .PHONY: bdd
 .PHONY: mtbdd
+.PHONY: synthesisDistrEnv
 .PHONY: highlevel
 .PHONY: backend
 .PHONY: backend_deploy
@@ -91,6 +92,9 @@ bdd: check_dependencies
 
 mtbdd: check_dependencies
 	ant -buildfile ./dependencies/synthesizer/symbolicalgorithms/mtbddapproach/build.xml $(t)
+
+synthesisDistrEnv: check_dependencies
+	ant -buildfile ./dependencies/synthesisDistrEnv/build.xml $(t)
 
 symbolic: bdd mtbdd
 

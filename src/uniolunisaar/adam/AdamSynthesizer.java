@@ -432,10 +432,14 @@ public class AdamSynthesizer {
 
     // the explicit versions
     public static BDDState getInitialGraphGameState(PetriGameWithTransits pg) {
-        DecisionSet init = GGBuilder.getInstance().createInitDecisionSet(pg);
-        BDDState bddstate = ExplicitBDDGraphTransformer.decisionset2BDDState(init);
-        bddstate.putExtension("dcs", init);
-        return bddstate;
+//        if (PetriGameExtensionHandler.thereIsOneEnvPlayer(pg)) {
+            DecisionSet init = GGBuilder.getInstance().createInitDecisionSet(pg);
+            BDDState bddstate = ExplicitBDDGraphTransformer.decisionset2BDDState(init);
+            bddstate.putExtension("dcs", init);
+            return bddstate;
+//        } else {
+//
+//        }
     }
 
     public static <W extends Condition<W>, SO extends BDDSolvingObject<W>, SOP extends BDDSolverOptions> Pair<List<Flow>, List<BDDState>> getSuccessors(BDDState state, BDDGraph graph, BDDSolver<W, SO, SOP> solver) {
